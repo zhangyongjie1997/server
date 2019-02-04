@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="screen-orientation" content="portrait" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script>
+    function adapt(designWidth, rem2px) {
+      var d = window.document.createElement('div');
+      d.style.width = '1rem';
+      d.style.display = "none";
+      var head = window.document.getElementsByTagName('head')[0];
+      head.appendChild(d);
+      var defaultFontSize = parseFloat(window.getComputedStyle(d, null).getPropertyValue('width'));
+      document.documentElement.style.fontSize = window.innerWidth / designWidth * rem2px / defaultFontSize * 100 + '%';
+      var st = document.createElement('style');
+      var portrait = "@media screen and (min-width: " + window.innerWidth + "px) {html{font-size:" + ((window.innerWidth /
+        (designWidth / rem2px) / defaultFontSize) * 100) + "%;}}";
+      var landscape = "@media screen and (min-width: " + window.innerHeight + "px) {html{font-size:" + ((window.innerHeight /
+        (designWidth / rem2px) / defaultFontSize) * 100) + "%;}}"
+      st.innerHTML = portrait + landscape;
+      head.appendChild(st);
+      return defaultFontSize;
+    };
+    var defaultFontSize = adapt(375, 100);
+  </script>
+  <link rel="stylesheet" href="./css/common.css">
+  <link rel="stylesheet" href="./css/index.css">
+  <title>e代驾-泊车</title>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <!-- <div class="gradient"></div> -->
+      <img src="./img/logo.png" class="logo">
+      <img src="./img/top-bg.png" class="top-bg" width="100%">
+      <img src="./img/top-title.png" class="top-title">
+    </div>
+    <div class="form">
+      <div class="content">
+        <div class="form-item-container phone">
+          <input id="phone" type="tel" maxlength="11" placeholder="输入手机号">
+          <span class="getCode-btn">获取验证码</span>
+        </div>
+        <div class="form-item-container">
+          <input id="code" class="code" type="tel" maxlength="4" placeholder="输入验证码">
+        </div>
+        <div class="btn" id="main-btn">领取红包</div>
+      </div>
+    </div>
+    <div class="rule">
+        <div class="rule-title">
+          <div class="o"></div>
+          <div class="line"></div>
+          <span class="title-text">活动细则</span>
+          <div class="line"></div>
+          <div class="o"></div>
+        </div>
+        <div class="rule-content">
+          <ul>
+            <li>被推荐的新用户输入手机号，即可获赠一张10元新客体验券，可用于泊车中所有服务，新客体验券有效期半年。</li>
+            <li>您推荐的新客户只要产生消费，您即获得一张10元新客推广券，可用于泊车中所有服务，新客推广券有效期为半年。推广券奖励预计24小时内到账。</li>
+            <li>您推荐的新客户同一手机设备、同一手机号码仅可领取一次。</li>
+            <li>您邀请好友所获赠的优惠券仅限本人使用，用于商业牟利将有封号风险。</li>
+          </ul>
+        </div>
+    </div>
+  </div>
+  
+</body>
+
+</html>
