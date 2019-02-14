@@ -1,0 +1,47 @@
+div, body, h1{
+  margin: 0;
+  padding: 0;
+}
+a{
+  text-decoration: none;
+  color: #000;
+}
+ul, li{
+  list-style: none;
+}
+
+.flex {
+  display: flex;
+  justify-content: space-between;
+  justify-items: center;
+  align-items: center;
+  align-content: space-between;
+}
+.text-left {
+  text-align: left;
+}
+.text-right {
+  text-align: right;
+}
+.margin-top-row{
+  margin-top: 50px;
+}
+.full-height{
+  height: 100%;
+}
+.mid_v{
+  position: absolute;
+  top: 50%;
+}
+.pointer{
+  cursor: pointer;
+}
+.text_left{
+  text-align: left;
+}
+.text_right{
+  text-align: right;
+}
+.el-input__inner, .el-button{
+  border-radius: 0;
+}
