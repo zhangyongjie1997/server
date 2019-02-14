@@ -3,11 +3,11 @@ const express = require('express')
 const path = require('path')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
-const favicon = require('serve-favicon')
 const createError = require('http-errors')
 const socket = require('./socket/index')
-const app = express()
 const goods = require('./models/goods')
+
+const app = express()
 
 // const accessLogStream = fs.createWriteStream(__dirname + '/access.log', {flags: 'a'})
 app.engine('html', require('express-art-template'))
@@ -22,6 +22,6 @@ app.use(morgan('dev'))
 
 const server = app.listen(3000,() => {
   global['port'] = server.address().port;
-  goods.addGoods()
+  //goods.addGoods()
   console.log('server is running on port ' + server.address().port)
 })

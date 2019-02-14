@@ -11,7 +11,6 @@ module.exports = {
     if(list.code == 0){
       let data = list.data;
       data = data.map((item) => {
-        item.img = '//localhost:'+ global.port +'/index/img/good.jpeg';
         item.collectCount = 0;
         item.collected = collectList.data.some(item2 => {
           return item2.id == item.id;
