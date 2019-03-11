@@ -19,7 +19,7 @@ router.beforeEach((to, from, next)=>{
 });
 Vue.directive('line_mid', {
   inserted(ele, binding){
-    console.log('insert');
+    //console.log('insert');
     let height;
     if(ele.currentStyle){
       height = ele.currentStyle['height'];
@@ -29,7 +29,7 @@ Vue.directive('line_mid', {
     ele.style.cssText += 'line-height:' + height + " !important";
   },
   update(ele){
-    console.log('update');
+    //console.log('update');
     let height;
     if(ele.currentStyle){
       height = ele.currentStyle['height'];
@@ -39,7 +39,7 @@ Vue.directive('line_mid', {
     ele.style.lineHeight = height;
   },
   componentUpdated(ele){
-    console.log('componentUpdated');
+    //console.log('componentUpdated');
     let height;
     if(ele.currentStyle){
       height = ele.currentStyle['height'];

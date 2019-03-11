@@ -5,12 +5,17 @@ import utils from '../lib/utils'
 import ElementUI from "element-ui"
 import axios2 from './instance'
 
+console.log(window);
+
+
 axios.defaults.baseURL = '//localhost:3000';
 
 axios.interceptors.request.use(
   config => {
     let token = utils.getLocalStorage("token") || "";
     if (config.method == "post") {
+      console.log(config);
+      
       if (config.data.password) {
         config.data.password = md5(config.data.password);
       }
@@ -78,4 +83,7 @@ export let editPersonalInfo = (data) => {
 }
 export let uploadGoods = (data) => {
   return axios2.post('/goods/upload', data);
+}
+export let getCollect = (data) => {
+  return axios.post('/goods/getCollect', data);
 }

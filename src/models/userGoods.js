@@ -1,50 +1,59 @@
-const Mock = require('mockjs')
-const utils = require('../lib/utils')
 const db = require('../db/db')
-const async = require('async')
+const utils = require('../lib/utils')
 
-class Goods {
+class userGoods {
   constructor(){}
-  async getIndexList(){
-    let data = [];
-    return new Promise(async resolve => {
-      let res = await db.query('select * from goods');
-      if(res[1]) return resolve({code: -1, err: res[1]})
-      resolve({code: 0, data: res[0]})
+  findCollect(phone, id){
+    return new Promise(async (resolve, reject) => {
+      if(!phone && !id){}
+      let result = await db.query(`select * from collect ${phone ? id ? ' where phone=(?) and id=(?)' : ' where phone=(?)' : ''}`, [phone, id]);
+      if(result[1]) return resolve({code: -1, err: result[1]});
+      resolve({code: 0, data: result[0]});
     })
   }
-  createGoods(){
-    return Mock.mock({
-      'list|5': [{
-        'id|+1': 1,
-        'time': '@datetime',
-        'name': '@ctitle()',
-        'describe': '@cparagraph()',
-        'phone': /^1[385][1-9]\d{8}/,
-        'price|1-2999.2': 99.00,
-        'class|1-6': 1,
-        'cover':''
-      }]
-    });
+  getCollectCount(){
+    return new Promise(async (resolve, reject) => {
+      let result = await db.query('select count(id) as count,id,phone from collect group by id');
+      if(result[1]) return resolve({code: -1, err: result[1]});
+      resolve({code: 0, data: result[0]});
+    })
   }
-  addGoods(){
-    let goods = this.createGoods().list;
-    goods.forEach(async item => {
-      let data = [];
-      for (const key in item) {
-        if (item.hasOwnProperty(key)) {
-          data.push(item[key]);
+  collect(phone, id){
+    return new Promise(async (resolve, reject) => {
+      let collect = await this.findCollect(phone, id), result;
+      if(collect.code == 0){
+        if(collect.data.length <= 0){
+          result = await db.query('insert into collect values(?,?)', [phone, id]);
+          if(result[1]) return resolve({code: -1, err: result[1]});
+          resolve({code: 0, msg: "收藏成功"});
+        }else{
+          result = await db.query('delete from collect where phone=(?) and id=(?)', [phone, id]);
+          if(result[1]) return resolve({code: -1, err: result[1]});
+          resolve({code: 1, msg: "取消收藏成功"});
         }
+      }else{
+        resolve({code: -1, err: collect.err});
       }
-      data.push('//localhost:'+ global.port +'/index/img/good.jpeg');
-      let res = await db.query('insert into goods values(?,?,?,?,?,?,?,?)', data);
-    });
+    })
   }
-  upload(request, response, next){
-    response.end(JSON.stringify({ code: 0 }));
+  getCollection(phone){
+    return new Promise(async (resolve, reject) => {
+      let collectList = [];
+      let result = await db.query('select id from collect where phone=?', [phone]);
+      if(result[1]) return resolve({code: -1, err: result[1]});
+      async.eachSeries(
+        result[0],
+        async (item) => {
+          let result2 = await db.query('select * from goods where id=?', [item.id]);
+          if(result2[1]) return resolve({code: -1, err: result[1]});
+          collectList.push(result2[0][0]);
+        },
+        () => {resolve({code: 0, data: collectList});}
+      );
+    });
   }
   uploadSingleFile(req, res, path){
-    return new Promise(async resolve=>{
+    return new Promise(async (resolve, reject)=>{
       let tmp_path = req.file.path;
       let target_path = 'uploads/'+ req.body.phone;
       let file_name = req.file.originalname;
@@ -57,7 +66,7 @@ class Goods {
     })
   }
   addGood(req, res, next){
-    return new Promise(async resolve => {
+    return new Promise(async (resolve, reject) => {
       let cover;
       const phone = req.body.userPhone;
       const target_path = 'uploads/'+ phone + '/goods';
@@ -86,12 +95,12 @@ class Goods {
       }
       let result6 = await this.insertGoods(req.body, goodNo, cover);
       if (result6.code != 0) return utils.sendError(res, result.err);
-      resolve({code:0, msg: "上传成功"});
+      resolve({code:0, msg: "上传成功"})
     })
   }
   insertGoods(data, id, cover){
     let _this = this;
-    return new Promise(async resolve => {
+    return new Promise(async (resolve, reject) => {
       let result = await db.query(
         'insert into goods values(?,?,?,?,?,?,?,?);', 
         [await _this.getNextGoodsId(), utils.getDateTime(), data.name, data.describe || '', data.userPhone, data.price, data.goodsClass, cover]
@@ -105,38 +114,4 @@ class Goods {
     if(!result[0][0]['max(id)']) return 0;
     return result[0][0]['max(id)'] * 1 + 1;
   }
-  getGoodsClass(){
-    return new Promise(async resolve => {
-      let result = await utils.readFile('public/goods/goodsClass.json');
-      if(result.code != 0) return resolve({code: -1, err: result.err});
-      resolve({code: 0, data: result.data});
-    })
-  }
-  getCollection(phone){
-    return new Promise(async resolve => {
-      let collectList = [];
-      let result = await db.query('select id,time from collect where phone=?', [phone]);
-      if(result[1]) return resolve({code: -1, err: result[1]});
-      async.eachSeries(
-        result[0],
-        async (item) => {
-          let result2 = await db.query('select * from goods where id=?', [item.id]);
-          if(result2[1]) return resolve({code: -1, err: result[1]});
-          result2[0][0].collectTime = item.time;
-          collectList.push(result2[0][0]);
-        },
-        () => { resolve({code: 0, data: collectList.reverse()}); }
-      );
-    });
-  }
-  getListByClass(goodsClass){
-    return new Promise(resolve => {
-      let querySql = 'select * from goods' + goodsClass == 0 ? '' : ' where class=?';
-      let result = db.query(querySql, [goodsClass]);
-      if(result2[1]) return resolve({code: -1, err: result[1]});
-      return resolve({code: 0, data: result[0]});
-    });
-  }
 }
-
-module.exports = new Goods();

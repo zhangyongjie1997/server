@@ -34,28 +34,42 @@ module.exports = {
         })
       }
       setTimeout(()=>{
-        res.send({code: 0, msg:'获取成功', data: data.slice(0, 8)})
+        res.send({code: 0, msg:'获取成功', data: data.slice(0, 8)}).end();
       },1000)
     }else{
       utils.sendError(res, list.err);
     }
   },
-  async upload(req, res, next){
-    // console.log(req);
-    // return res.send({code: 0}).end();
-    let resault = await goods.addGood(req, res, next);
-    if(resault.code == 0){
-      res.send({
-        code: 0,
-        msg: '上传成功'
-      }).end();
-    }else{
-      utils.sendError(res, resault.err);
+  async getIndexImg(req, res, next){
+    let result;
+    const data = await utils.getDirInfo('public/index/img');
+    if(data.code == 0){
+      result = data.data.map(item => {
+        return 'localhost:'+ global.port + '/index/img/' + item;
+      });
+      res.send({code:0, msg:'获取成功', data: result}).end();
     }
+  },
+  async upload(req, res, next){
+    let resault = await goods.addGood(req, res, next);
+    if(resault.code != 0){
+      return utils.sendError(res, resault.err);
+    }
+    res.send({code: 0, msg: '上传成功'}).end();
   },
   async getGoodsClass(req, res, next){
     let classList = await goods.getGoodsClass();
     if(classList.code != 0) return utils.sendError(res, classList.err);
-    res.send({code: 0, msg: '获取成功', data: classList.data});
+    res.send({code: 0, msg: '获取成功', data: classList.data}).end();
+  },
+  async getCollecion(req, res, next){
+    let collectList = await goods.getCollection(req.body.userPhone);
+    if(collectList.code != 0) return utils.sendError(res, collectList.err);
+    res.send({code: 0, msg: '获取成功', data: collectList.data}).end();
+  },
+  async getListByClass(req, res, next){
+    let classList = await goods.getListByClass(req.body.goodsClass);
+    if(classList.code != 0) return utils.sendError(res, classList.err);
+    res.send({code: 0, msg: '获取成功', data: classList.data}).end();
   }
 }

@@ -1,8 +1,8 @@
 const io = require('socket.io')
 
-const socket = {
+class Socket {
   getSocket(server){
     return io.listen(server);
   }
 }
-module.exports = socket;
+module.exports = new Socket();

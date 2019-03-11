@@ -71,6 +71,7 @@ input:-webkit-autofill {
 }
 
 ::-webkit-scrollbar-thumb {
+  border-radius: 10px;
   background-color: #aaa;
   transition: all .3s ease-in-out;
 }
@@ -105,6 +106,12 @@ input:-webkit-autofill {
 }
 .pointer {
   cursor: pointer !important;
+}
+.overflow{
+  overflow: hidden;
+}
+.no_select{
+  user-select: none;
 }
 .text_left {
   text-align: left !important;

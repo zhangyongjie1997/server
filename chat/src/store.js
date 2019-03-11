@@ -9,8 +9,8 @@ let state = {
   user:{}
 }
 const getters = {
-  phone : state => state.phone,
-  token: state => state.token,
+  phone : state => state.user.phone,
+  token: state => state.user.token,
   get: state => key => state[key]
 }
 const mutations = {
@@ -50,7 +50,7 @@ function getProxy(initState){
 export default new Vuex.Store({
   state,
   mutations,
-  getters,
+  getters: getters,
   actions: {},
   plugins: [createLogger(), createPersistedState({
     storage: window.sessionStorage

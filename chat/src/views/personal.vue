@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <el-tabs tab-position="left" style="">
+    <el-tabs tab-position="left" style="" @tab-click="tabClick">
       <el-tab-pane label="个人信息">
         <el-row class="avatar" v-line_mid>
           <el-col :span="2"><span>头像</span></el-col>
@@ -41,6 +41,19 @@
           <el-button plain type='primary' @click="$router.push('/upload')">添加作品</el-button>
         </el-row>
       </el-tab-pane>
+      <el-tab-pane label="我的收藏">
+        <el-row>
+          <el-card class="collect-container">
+            <el-row v-line_mid class="collect-item pointer" @click="collectClick" v-for="(item, index) in collectList" :key="index">
+              <el-col :span="6">
+                <router-link class="collect-link" tag="a" :to="'/detail/' + item.id">{{item.name}}</router-link>
+              </el-col>
+              <el-col :span="3">￥{{item.price}}</el-col>
+              <el-col class="text-right" :span="15">收藏时间：{{item.collectTime}}</el-col>
+            </el-row>
+          </el-card>
+        </el-row>
+      </el-tab-pane>
     </el-tabs>
     <el-dialog
       title="编辑信息"
@@ -64,7 +77,7 @@
 <script>
 import { baseUrl } from "../lib/config.js";
 import utils from '../lib/utils.js';
-import { editPersonalInfo } from "../api/api.js";
+import { editPersonalInfo, getCollect } from "../api/api.js";
 export default {
   data() {
     return {
@@ -75,15 +88,33 @@ export default {
       },
       baseUrl: baseUrl,
       dialogVisible: false,
-      userForm: {}
+      userForm: {},
+      collectList: []
     };
   },
   methods: {
+    collectClick(e){
+      console.log(e)
+    },
+    tabClick(e){
+      if(e.index == '2'){
+        getCollect({
+          phone: this.$store.getters.get('user[phone]')
+        }).then(res => {
+          if(res.code != 0){
+            this.$message.error(res.msg);
+          }else{
+            this.collectList = res.data;
+          }
+        });
+      }
+    },
     avatar_upload_success(res){
       if(res.code == 0){
         this.$store.commit('setUser', Object.assign(this.user, {
           avatar: res.data.path
-        }))
+        }));
+        this.$message.success(res.msg);
       }
     },
     showEdit(){
@@ -130,5 +161,18 @@ export default {
 }
 .el-col{
   text-align: left;
+}
+.collect-container{
+  height: 500px;
+}
+.collect-item{
+  height: 50px;
+  margin-bottom: 10px;
+  padding: 0 10px;
+  font-size: 12px;
+  border: 1px solid #ccc;
+}
+.collect-link:hover{
+  color: cornflowerblue;
 }
 </style>

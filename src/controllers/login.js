@@ -22,6 +22,10 @@ module.exports = (request, response, next) => {
         }
         let token = jwt.getToken(payload);
         user.addLoginUser(data.phone, token);
+        request.session.user = {
+          phone: res[0].phone,
+          token
+        };
         response.end(JSON.stringify({
           code: 0,
           msg: "登录成功",

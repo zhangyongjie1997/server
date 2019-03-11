@@ -13,9 +13,9 @@
       </el-col>
     </el-row>
     <el-row style="border-bottom:1px solid #ddd;">
-      <el-col :span="24">
-        <span class="hot active" ref='hot' data-hot="hot" @click="hotClick">热门</span>
-        <span class="hot" ref='new' data-hot="new" @click="hotClick">最新</span>
+      <el-col :span="24" class="overflow">
+        <span class="hot active no_select" ref='hot' data-hot="hot" @click="hotClick">热门</span>
+        <span class="hot no_select" ref='new' data-hot="new" @click="hotClick">最新</span>
       </el-col>
     </el-row>
     <el-row class="list_container" v-loading="loading">
@@ -88,11 +88,12 @@ export default {
 </script>
 <style scoped>
 .hot{
+  box-sizing: border-box;
   cursor: pointer;
   margin: 30px 0 40px;
   display: inline-block;
-  width: 120px;
-  height: 35px;
+  width: 122px;
+  height: 37px;
   line-height: 35px;
 }
 .hot.active{

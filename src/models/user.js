@@ -67,7 +67,7 @@ class User {
       let collect = await this.findCollect(phone, id), result;
       if(collect.code == 0){
         if(collect.data.length <= 0){
-          result = await db.query('insert into collect values(?,?)', [phone, id]);
+          result = await db.query('insert into collect values(?,?,?)', [phone, id, utils.formatDate(new Date())]);
           if(result[1]) return resolve({code: -1, err: result[1]});
           resolve({code: 0, msg: "收藏成功"});
         }else{
