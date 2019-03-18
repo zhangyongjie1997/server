@@ -1,19 +1,15 @@
 import Vue from "vue";
 import Router from "vue-router";
-import login from "./views/login.vue";
-import register from "./views/register.vue";
-import upload from "./views/upload.vue";
-import index from "./views/index.vue";
-import personal from "./views/personal.vue";
 
 Vue.use(Router);
 
 export default new Router({
+  mode: "history",
   routes: [
     {
       path: "/login",
       name: "login",
-      component: login,
+      component: () => import('./views/login.vue'),
       meta:{
         title:'登录'
       }
@@ -21,7 +17,7 @@ export default new Router({
     {
       path: "/register",
       name: "register",
-      component: register,
+      component: () => import('./views/register.vue'),
       meta:{
         title:'注册'
       }
@@ -29,7 +25,7 @@ export default new Router({
     {
       path: "/upload",
       name: "upload",
-      component: upload,
+      component: () => import('./views/upload.vue'),
       meta:{
         title:'上传'
       }
@@ -37,7 +33,7 @@ export default new Router({
     {
       path: "/index",
       name: "index",
-      component: index,
+      component: () => import('./views/index.vue'),
       meta:{
         title:'首页'
       }
@@ -45,17 +41,25 @@ export default new Router({
     {
       path: "/personal",
       name: "personal",
-      component: personal,
+      component: () => import('./views/personal.vue'),
       meta:{
-        title:'个人中心'
+        title:'个人中心',
       }
     },
     {
       path: "/",
       name: "index",
-      component: index,
+      component: () => import('./views/index.vue'),
       meta:{
         title:'首页'
+      }
+    },
+    {
+      path: "/classList",
+      name: "classList",
+      component: () => import('./views/classList.vue'),
+      meta:{
+        title:'分类'
       }
     },
   ]

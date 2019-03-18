@@ -6,5 +6,6 @@ module.exports = {
     password: 'root',
     database: 'test',
     port: '3306',
-  }
+  },
+  uploadPath: 'public/uploads/'
 }

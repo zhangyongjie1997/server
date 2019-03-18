@@ -63,7 +63,6 @@
                 class="upload-demo"
                 ref="upload1"
                 list-type="picture"
-                action="https://jsonplaceholder.typicode.com/posts/"
                 :file-list="fileList"
                 :limit="1"
                 name="cover"
@@ -82,7 +81,6 @@
                 class="upload-demo"
                 ref="upload2"
                 list-type="picture"
-                action="https://jsonplaceholder.typicode.com/posts/"
                 :file-list="fileList"
                 name="detail"
                 :auto-upload="false">
@@ -94,6 +92,12 @@
           <el-row class="item">
             <el-button @click="submitUpload" plain type="primary"> 上 传   </el-button>
           </el-row>
+        </el-row>
+      </div>
+      <div class="class_container class_container3" v-if="step == 3">
+        <el-row class="upload_row">
+          <span class="upload_success"><i class="el-icon-success color_success"></i>上传成功</span>
+          <span class="upload_success_a pointer" @click="uploadSuccessHref">点击查看</span>
         </el-row>
       </div>
     </div>
@@ -119,7 +123,7 @@ export default {
       rules:{
         name: [
           { required: true, message: '请输入名称', trigger: 'blur' },
-          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+          { min: 3, max: 20, message: '长度在 3 到 5 个字符', trigger: 'blur' }
         ],
         price:[
           { required: true, message: '请输入价格', trigger: 'blur' },
@@ -131,9 +135,11 @@ export default {
     this.getGoodsClass()
   },
   methods:{
+    uploadSuccessHref(){
+      this.$router.push({path: '/personal', query: {tab: 'goods'}});
+    },
     submitUpload(){
-      // debugger
-      // this.$refs.upload1.submit();
+      let that = this;
       let fileData = new FormData();
       this.$refs.upload1.uploadFiles.forEach(item => {
         fileData.append("cover", item.raw, item.name);
@@ -141,19 +147,27 @@ export default {
       this.$refs.upload2.uploadFiles.forEach(item => {
         fileData.append("detail", item.raw, item.name);
       });
-      console.log(fileData.get("cover"))
       uploadGoods({
         file: fileData,
         data: {
-          ...this.goods,
-          goodsClass: this.classId,
+          ...that.goods,
+          goodsClass: that.classId,
         }
-      })
+      }).then(res => {
+        if(res.data.code != 0){
+          that.$message.warning(res.data.msg);
+          that.step = 0;
+        }else{
+          that.$message.success(res.data.msg);
+          that.step++;
+        }
+      });
     },
     getGoodsClass(){
+      let that = this;
       getGoodsClass().then(res => {
         if(res.code == 0){
-          this.goodsClass = res.data;
+          that.goodsClass = res.data;
         }
       });
     },
@@ -248,6 +262,11 @@ export default {
   justify-content: space-around;
   padding: 20px;
 }
+.class_container.class_container3{
+  box-sizing: border-box;
+  width: 100%;
+  height: 456px;
+}
 .goodsForm{
   margin: 20px 0;
   width: 70%;
@@ -257,5 +276,11 @@ export default {
 }
 .upload_row .item{
   margin: 50px 0;
+}
+.upload_success{
+  font-size: 30px;
+}
+.upload_success_a{
+  color: #409EFF;
 }
 </style>

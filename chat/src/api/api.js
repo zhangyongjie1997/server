@@ -8,7 +8,7 @@ import axios2 from './instance'
 console.log(window);
 
 
-axios.defaults.baseURL = '//localhost:3000';
+axios.defaults.baseURL = '//39.107.88.223/api';
 
 axios.interceptors.request.use(
   config => {
@@ -86,4 +86,7 @@ export let uploadGoods = (data) => {
 }
 export let getCollect = (data) => {
   return axios.post('/goods/getCollect', data);
+}
+export let getPersonalGoods = (data) => {
+  return axios.post('/goods/personalGoods', data);
 }

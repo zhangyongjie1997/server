@@ -40,6 +40,7 @@ export default {
   },
   methods: {
     register(){
+      let that = this;
       let data = {
         phone: this.phone,
         password: this.password,
@@ -48,9 +49,9 @@ export default {
       }
       register(data).then(res=>{
         if(res.code==0){
-          this.$router.push('/login');
+          that.$router.push('/login');
         }else{
-          this.$message(res.data.msg);
+          that.$message(res.data.msg);
         }
       });
     }

@@ -20,8 +20,8 @@
         active-text-color="#ffd04b"
       >
         <el-menu-item index="/index">首页</el-menu-item>
-        <el-menu-item index="/class">分类</el-menu-item>
-        <el-menu-item v-if="isLogin" index="/personal">个人</el-menu-item>
+        <el-menu-item index="/classList">分类</el-menu-item>
+        <el-menu-item v-if="isLogin" index="/personal">我的</el-menu-item>
       </el-menu>
     </el-col>
     <el-col :span="4" class="full-height" v-line_mid>

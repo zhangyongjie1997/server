@@ -83,10 +83,10 @@ class User {
   }
   async avatarUpload(req, res, next) {
     console.log(req)
-    let resault = await user.uploadAvatar(req, res, next)
+    let resault = await user.uploadAvatar(req)
     let path;
     if (resault.code == 0) {
-      path = '//localhost:' + global.port + '/' + (resault.path).replace('uploads/', '');
+      path = '//localhost:' + global.port + '/' + (resault.path).replace('uploads/', 'static/');
       res.send({
         code: 0,
         msg: '上传成功',

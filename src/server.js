@@ -25,9 +25,6 @@ app.engine('html', require('express-art-template'))
 app.set('views', path.join(__dirname, './views/')) // 默认就是 ./views 目录
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
-app.use(express.static(path.join(__dirname, '', '../public/')))
-app.use(express.static(path.join(__dirname, '', '../views/public/')))
-app.use(express.static(path.join(__dirname, '', '../uploads/')))
 app.use(router)
 app.use(morgan('dev'))
 app.use(session({
@@ -35,6 +32,10 @@ app.use(session({
   resave: true,
   saveUninitialized: true
 }))
+
+app.use('/public', express.static(path.resolve(__dirname, '../public/')))
+app.use(express.static(path.resolve(__dirname, '../views/public/')))
+app.use('/static', express.static(path.resolve(__dirname, '../uploads/')))
 
 
 if (cluster.isMaster) {

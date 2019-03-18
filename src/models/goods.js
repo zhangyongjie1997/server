@@ -2,6 +2,7 @@ const Mock = require('mockjs')
 const utils = require('../lib/utils')
 const db = require('../db/db')
 const async = require('async')
+const path = require('path')
 
 class Goods {
   constructor(){}
@@ -36,7 +37,7 @@ class Goods {
           data.push(item[key]);
         }
       }
-      data.push('//localhost:'+ global.port +'/index/img/good.jpeg');
+      data.push('//localhost:'+ global.port +'/public/index/img/good.jpeg');
       let res = await db.query('insert into goods values(?,?,?,?,?,?,?,?)', data);
     });
   }
@@ -77,14 +78,14 @@ class Goods {
           const tmp_path = file.path;
           const file_name = file.originalname;
           if(key == 'cover'){
-            cover = '//localhost:' + global.port + '/' + target_path3 + '/' + file_name;
-            cover.replace('uploads/', '');
+            cover = ('//localhost:' + global.port + '/' + target_path3 + '/' + file_name).replace('uploads/', 'static/');
           }
           const result5 = await utils.writeSingleFile(target_path3, file_name, tmp_path);
           if (result5.code != 0) return utils.sendError(res, result.err);
         })
       }
       let result6 = await this.insertGoods(req.body, goodNo, cover);
+      console.log(result6)
       if (result6.code != 0) return utils.sendError(res, result.err);
       resolve({code:0, msg: "上传成功"});
     })
@@ -107,10 +108,10 @@ class Goods {
   }
   getGoodsClass(){
     return new Promise(async resolve => {
-      let result = await utils.readFile('public/goods/goodsClass.json');
+      let result = await utils.readFile(path.resolve(__dirname, '../../public/goods/goodsClass.json'));
       if(result.code != 0) return resolve({code: -1, err: result.err});
       resolve({code: 0, data: result.data});
-    })
+    });
   }
   getCollection(phone){
     return new Promise(async resolve => {
@@ -133,7 +134,14 @@ class Goods {
     return new Promise(resolve => {
       let querySql = 'select * from goods' + goodsClass == 0 ? '' : ' where class=?';
       let result = db.query(querySql, [goodsClass]);
-      if(result2[1]) return resolve({code: -1, err: result[1]});
+      if(result[1]) return resolve({code: -1, err: result[1]});
+      return resolve({code: 0, data: result[0]});
+    });
+  }
+  getGoodsListByPhone(phone){
+    return new Promise(async resolve => {
+      let result = await db.query('select * from goods where phone=?', [phone]);
+      if(result[1]) return resolve({code: -1, err: result[1]});
       return resolve({code: 0, data: result[0]});
     });
   }

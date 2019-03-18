@@ -5,13 +5,18 @@ const router = express.Router()
 const userController = require('./controllers/userController')
 const jwt = require("./lib/jwt")
 const goodsController = require('./controllers/goodsController')
+const payController = require('./controllers/payController')
 const multer = require('multer')
 
 const upload = multer({ dest: './uploads/' })
 
 router.all('*', (req, res, next) => {
   let data = req.body;
+  req.url = req.url.replace('/api', '');
   console.log('请求参数:'+ JSON.stringify(data)+',请求路径:' + req.url);
+  if(req.url.indexOf('/static') != -1){
+    req.url = decodeURIComponent(req.url);
+  }
   if(req.headers.host.indexOf('localhost') > -1 || req.headers.host.indexOf('127.0.0.1') > -1){
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With");
@@ -53,12 +58,18 @@ router.get('/goods/indexList', goodsController.getIndexList);
 router.post('/goods/upload', upload.fields([{name: 'cover', maxCount: 1}, {name:'detail', maxCount: 99}]), goodsController.upload);
 //分类获取商品
 router.get('/goods/classList', goodsController.getListByClass);
+//获取个人商品
+router.post('/goods/personalGoods', goodsController.getGoodsListByPhone);
 //获取个人收藏
 router.post('/goods/getCollect', goodsController.getCollecion);
 //获取商品分类
 router.get('/goods/getGoodsClass', goodsController.getGoodsClass);
 //首页轮播图
 router.get('/index/swiper', goodsController.getIndexImg);
+//支付回调
+router.all('/pay/callback', payController.verifyCallback);
+//支付
+router.all('/pay/pay', payController.pay);
 
 router.get('/index.html', (req, res, next) => {
   readfile((data) => {
@@ -70,6 +81,6 @@ router.get('/index.html', (req, res, next) => {
 router.get('/index', (req, res, next) => {
   res.header('Content-Type','text/html');
   res.render('index.html', {});
-})
+});
 
 module.exports = router;

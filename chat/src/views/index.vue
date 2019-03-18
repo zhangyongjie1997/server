@@ -51,8 +51,9 @@ export default {
     };
   },
   created(){
+    let that = this;
     getIndexImg().then(res=>{
-      this.indexImg = res.data;
+      that.indexImg = res.data;
     });
     this.getHot('hot');
   },
@@ -66,20 +67,22 @@ export default {
       this.getHot(hot);
     },
     getHot(sort){
+      let that = this;
       this.loading = true;
       getIndexGoods({sort}).then(res => {
         if(res.code == 0){
-          this.goods = res.data;
-          this.loading = false;
+          that.goods = res.data;
+          that.loading = false;
         }
       });
     },
     collect(e){
+      let that = this;
       let target = e.currentTarget || e.target;
       let id = target.dataset.id;
       collect({phone: this.$store.state.user.phone, id}).then(res => {
         //this.getHot('hot');
-        if(res.code == 0) this.$message.success(res.msg);
+        if(res.code == 0) that.$message.success(res.msg);
         target.classList.toggle('active');
       })
     }
@@ -103,6 +106,10 @@ export default {
   padding: 40px 80px 55px 40px;
 }
 .list_item{
+  position: relative;
+  width: 278px;
+  height: 267px;
+  font-size: 0px;
   margin: 0 0 25px 25px;
   float: left;
   border: 1px solid #eee;
@@ -119,6 +126,10 @@ export default {
   transform: scale(1.1);
 }
 .item_info{
+  box-sizing: border-box;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
   line-height: 2;
   font-size: 14px;
   padding: 10px;

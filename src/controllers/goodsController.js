@@ -1,6 +1,7 @@
 const goods = require('../models/goods')
 const user = require('../models/user')
 const utils = require('../lib/utils')
+const path = require('path')
 
 module.exports = {
   async getIndexList(req, res, next){
@@ -42,10 +43,10 @@ module.exports = {
   },
   async getIndexImg(req, res, next){
     let result;
-    const data = await utils.getDirInfo('public/index/img');
+    const data = await utils.getDirInfo(path.resolve(__dirname, '../../public/index/img'));
     if(data.code == 0){
       result = data.data.map(item => {
-        return 'localhost:'+ global.port + '/index/img/' + item;
+        return 'localhost:'+ global.port + '/public/index/img/' + item;
       });
       res.send({code:0, msg:'获取成功', data: result}).end();
     }
@@ -65,11 +66,31 @@ module.exports = {
   async getCollecion(req, res, next){
     let collectList = await goods.getCollection(req.body.userPhone);
     if(collectList.code != 0) return utils.sendError(res, collectList.err);
-    res.send({code: 0, msg: '获取成功', data: collectList.data}).end();
+    let currentPage = req.body.currentPage || 0,
+      pageSize = req.body.pageSize || 0;
+    let list = collectList.data.slice(pageSize * currentPage, pageSize * (currentPage + 1));
+    res.send({code: 0, msg: '获取成功', data: {
+      data: list,
+      count: collectList.data.length
+    }}).end();
   },
   async getListByClass(req, res, next){
     let classList = await goods.getListByClass(req.body.goodsClass);
     if(classList.code != 0) return utils.sendError(res, classList.err);
     res.send({code: 0, msg: '获取成功', data: classList.data}).end();
+  },
+  async getGoodsListByPhone(req, res, next){
+    let goodsList = await goods.getGoodsListByPhone(req.body.userPhone);
+    if(goodsList.code != 0) return utils.sendError(res, goodsList.err);
+    let currentPage = req.body.currentPage || 0,
+      pageSize = req.body.pageSize || 0;
+    let list = goodsList.data.sort((a, b) => {
+      if(utils.getTimestamp(a.time) > utils.getTimestamp(b.time)) return -1;
+      return 1;
+    }).slice(pageSize * currentPage, pageSize * (currentPage + 1));
+    res.send({code: 0, msg: '获取成功', data: {
+      data: list,
+      count: goodsList.data.length
+    }}).end();
   }
 }

@@ -37,6 +37,7 @@ export default {
   },
   methods: {
     login(){
+      let that = this;
       let data = {
         phone: this.phone,
         password: this.password
@@ -48,8 +49,8 @@ export default {
               utils.setLocalStorage(key,res.data[key])
             }
           }
-          this.$store.commit('setUser', res.data)
-          this.$router.push('/index');
+          that.$store.commit('setUser', res.data)
+          that.$router.push('/index');
         }
       }).catch();
     }

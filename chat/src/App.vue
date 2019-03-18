@@ -13,7 +13,7 @@ export default {
   },
   components: {
     top
-  }
+  },
 };
 </script>
 
@@ -130,5 +130,8 @@ input:-webkit-autofill {
 .el-step__icon {
   position: absolute !important;
   left: 0 !important;
+}
+.color_success{
+  color: #67C23A;
 }
 </style>

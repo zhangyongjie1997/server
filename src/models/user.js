@@ -11,7 +11,7 @@ class User {
       let res = await db.query('select * from user where phone=(?)', [phone]);
       if (res[1]) return reject(res[1]);
       resolve(res[0]);
-    })
+    });
   }
   addUser(data) {
     return new Promise(async (resolve, reject) => {
@@ -26,7 +26,7 @@ class User {
       let res = await db.query('select * from login where phone=(?)', [phone]);
       if (res[1]) return reject(res[1])
       resolve(res[0]);
-    })
+    });
   }
   async addLoginUser(phone, token) {
     let res = await this.findLoginByPhone(phone);
@@ -45,7 +45,7 @@ class User {
         let newUserList = await this.findUserByPhone(phone);
         resolve({code: 0, data: newUserList[0]});
       }
-    })
+    });
   }
   findCollect(phone, id){
     return new Promise(async (resolve, reject) => {
@@ -53,14 +53,14 @@ class User {
       let result = await db.query(`select * from collect ${phone ? id ? ' where phone=(?) and id=(?)' : ' where phone=(?)' : ''}`, [phone, id]);
       if(result[1]) return resolve({code: -1, err: result[1]});
       resolve({code: 0, data: result[0]});
-    })
+    });
   }
   getCollectCount(){
     return new Promise(async (resolve, reject) => {
       let result = await db.query('select count(id) as count,id,phone from collect group by id');
       if(result[1]) return resolve({code: -1, err: result[1]});
       resolve({code: 0, data: result[0]});
-    })
+    });
   }
   collect(phone, id){
     return new Promise(async (resolve, reject) => {
@@ -78,12 +78,12 @@ class User {
       }else{
         resolve({code: -1, err: collect.err});
       }
-    })
+    });
   }
   updateAvatar(path, phone) {
     db.query('update user set avatar=(?) where phone=(?)', [path, phone]);
   }
-  uploadAvatar(req, res, path) {
+  uploadAvatar(req) {
     return new Promise(async (resolve, reject) => {
       let ExtensionName = req.file.mimetype.split('/')[1];
       let tmp_path = req.file.path;
@@ -95,7 +95,7 @@ class User {
       } else {
         resolve({code: -1, err: result.err});
       }
-    })
+    });
   }
   writeSingleFile(req, res, path, avatar) {
     return new Promise(async (resolve, reject) => {
@@ -108,7 +108,7 @@ class User {
       } else {
         resolve({code: -1, err: result.err});
       }
-    })
+    });
   }
 }
 module.exports = new User();
