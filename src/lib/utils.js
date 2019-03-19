@@ -120,6 +120,21 @@ const utils = {
   },
   getDateTime(){
     return this.formatDate(new Date(), "yyyy-MM-dd hh:mm:ss");
-  }
+  },
+  sortList(list = [], sort){
+    if(sort && sort == 'new'){
+      list.sort((a, b)=>{
+        if(utils.getTimestamp(a.time) > utils.getTimestamp(b.time)) return -1;
+        return 1;
+      });
+    }else{
+      list.sort((a, b) => {
+        if(a.collectCount > b.collectCount) return -1;
+        return 1;
+      });
+    }
+    return list;
+  },
+  
 }
 module.exports = utils

@@ -1,12 +1,14 @@
 const express = require('express')
 const path = require('path')
 const fs = require('fs')
-const router = express.Router()
-const userController = require('./controllers/userController')
 const jwt = require("./lib/jwt")
+const multer = require('multer')
+const router = express.Router()
+const UserController = require('./controllers/userController')
 const goodsController = require('./controllers/goodsController')
 const payController = require('./controllers/payController')
-const multer = require('multer')
+
+const userController = new UserController()
 
 const upload = multer({ dest: './uploads/' })
 
@@ -43,33 +45,37 @@ function readfile(callback) {
 //token验证
 router.use(jwt.verify);
 //注册
-router.post('/user/register', userController.register);
+router.post('/user/register', userController.register.bind(userController));
 //登录
-router.post('/user/login', userController.login);
+router.post('/user/login', userController.login.bind(userController));
 //换头像
-router.post('/user/avatar', upload.single('avatar'), userController.avatarUpload);
+router.post('/user/avatar', upload.single('avatar'), userController.avatarUpload.bind(userController));
 //修改个人信息
-router.post('/user/editInfo', userController.editInfo);
+router.post('/user/editInfo', userController.editInfo.bind(userController));
 //收藏
-router.post('/user/collect', userController.collect);
+router.post('/user/collect', userController.collect.bind(userController));
 //首页列表
-router.get('/goods/indexList', goodsController.getIndexList);
+router.get('/goods/indexList', goodsController.getIndexList.bind(goodsController));
 //上传
-router.post('/goods/upload', upload.fields([{name: 'cover', maxCount: 1}, {name:'detail', maxCount: 99}]), goodsController.upload);
+router.post('/goods/upload', upload.fields([{name: 'cover', maxCount: 1}, {name:'detail', maxCount: 99}]), goodsController.upload.bind(goodsController));
 //分类获取商品
-router.get('/goods/classList', goodsController.getListByClass);
+router.get('/goods/classList', goodsController.getListByClass.bind(goodsController));
 //获取个人商品
-router.post('/goods/personalGoods', goodsController.getGoodsListByPhone);
+router.post('/goods/personalGoods', goodsController.getGoodsListByPhone.bind(goodsController));
 //获取个人收藏
-router.post('/goods/getCollect', goodsController.getCollecion);
+router.post('/goods/getCollect', goodsController.getCollecion.bind(goodsController));
 //获取商品分类
-router.get('/goods/getGoodsClass', goodsController.getGoodsClass);
+router.get('/goods/getGoodsClass', goodsController.getGoodsClass.bind(goodsController));
 //首页轮播图
-router.get('/index/swiper', goodsController.getIndexImg);
+router.get('/index/swiper', goodsController.getIndexImg.bind(goodsController));
 //支付回调
-router.all('/pay/callback', payController.verifyCallback);
+router.all('/pay/callback', payController.verifyCallback.bind(payController));
 //支付
-router.all('/pay/pay', payController.pay);
+router.post('/pay/pay', goodsController.payGoods.bind(goodsController));
+//提交订单
+router.post('/order/commit');
+//下架商品
+router.post('/goods/delete', goodsController.deleteGoods.bind(goodsController));
 
 router.get('/index.html', (req, res, next) => {
   readfile((data) => {

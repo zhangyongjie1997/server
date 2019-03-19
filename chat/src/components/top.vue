@@ -26,7 +26,7 @@
     </el-col>
     <el-col :span="4" class="full-height" v-line_mid>
       <router-link v-if="!isLogin" to="/login" class="login_btn">登录</router-link>
-      <el-row>
+      <el-row v-if="isLogin">
         <el-col :span="8" class="text_left">
           <img :src="user.avatar" height="60px" width="60px">
       </el-col>

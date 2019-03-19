@@ -2,7 +2,7 @@ const user = require('../models/user')
 const jwt = require("../lib/jwt")
 const utils = require('../lib/utils')
 
-class User {
+class UserController {
   constructor() {}
   register(request, response, next) {
     let data = request.body;
@@ -38,8 +38,16 @@ class User {
       }
     })
   }
-
-  login(request, response, next) {
+  static userVerify(phone, password){
+    return new Promise(async resolve => {
+      let userInfo = await user.findUserByPhone(phone);
+      if(userInfo.length == 0) return resolve({code: -1, msg: '用户不存在', err: {message: '用户不存在'}});
+      if(userInfo[0].password == password) return resolve({code: 0, data: userInfo[0], msg: '登录成功'});
+      return resolve({code: -1, msg: '密码不正确', err: {message: '密码不正确'}});
+    });
+  }
+  login(request, response) {
+    let that = this;
     if (!request.body.password) {
       return response.end(JSON.stringify({
         code: -1,
@@ -47,46 +55,30 @@ class User {
       }))
     }
     let data = request.body;
-    user.findUserByPhone(data.phone).then(res => {
-      if (res.length < 1) {
-        response.end(JSON.stringify({
-          code: -1,
-          msg: "用户不存在"
-        }));
-      } else {
-        if (res[0].password = data.password) {
-          const payload = {
-            phone: res[0].phone
-          }
-          let token = jwt.getToken(payload);
-          user.addLoginUser(data.phone, token);
-          response.end(JSON.stringify({
-            code: 0,
-            msg: "登录成功",
-            data: {
-              token,
-              phone: res[0].phone,
-              nick_name: res[0].nick_name || '默认',
-              avatar: res[0].avatar || ''
-            }
-          }));
-        } else {
-          response.end(JSON.stringify({
-            code: -1,
-            msg: '密码不正确'
-          }))
-        }
+    UserController.userVerify(data.phone, data.password).then(res => {
+      if(res.code != 0) return response.json(res);
+      const payload = {
+        phone: res.data.phone
       }
-    }).catch(err => {
-
+      let token = jwt.getToken(payload);
+      user.addLoginUser(data.phone, token);
+      response.end(JSON.stringify({
+        code: 0,
+        msg: "登录成功",
+        data: {
+          token,
+          phone: res.data.phone,
+          nick_name: res.data.nick_name || '默认',
+          avatar: res.data.avatar || ''
+        }
+      }));
     });
   }
   async avatarUpload(req, res, next) {
-    console.log(req)
     let resault = await user.uploadAvatar(req)
     let path;
     if (resault.code == 0) {
-      path = '//localhost:' + global.port + '/' + (resault.path).replace('uploads/', 'static/');
+      path = '//39.107.88.223/api/' + (resault.path).replace('uploads/', 'static/');
       res.send({
         code: 0,
         msg: '上传成功',
@@ -114,4 +106,4 @@ class User {
   }
 }
 
-module.exports = new User();
+module.exports = UserController;

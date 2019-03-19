@@ -1,4 +1,8 @@
-div, body, h1{
+body{
+  min-width: 1300px;
+}
+
+div, body, h1, p{
   margin: 0;
   padding: 0;
 }
@@ -44,4 +48,10 @@ ul, li{
 }
 .el-input__inner, .el-button{
   border-radius: 0;
+}
+.fl{
+  float: left;
+}
+.fr{
+  float: right;
 }

@@ -37,7 +37,7 @@ class Goods {
           data.push(item[key]);
         }
       }
-      data.push('//localhost:'+ global.port +'/public/index/img/good.jpeg');
+      data.push('//39.107.88.223/api/public/index/img/good.jpeg');
       let res = await db.query('insert into goods values(?,?,?,?,?,?,?,?)', data);
     });
   }
@@ -78,7 +78,7 @@ class Goods {
           const tmp_path = file.path;
           const file_name = file.originalname;
           if(key == 'cover'){
-            cover = ('//localhost:' + global.port + '/' + target_path3 + '/' + file_name).replace('uploads/', 'static/');
+            cover = ('//39.107.88.223/api/' + target_path3 + '/' + file_name).replace('uploads/', 'static/');
           }
           const result5 = await utils.writeSingleFile(target_path3, file_name, tmp_path);
           if (result5.code != 0) return utils.sendError(res, result.err);
@@ -131,9 +131,12 @@ class Goods {
     });
   }
   getListByClass(goodsClass){
-    return new Promise(resolve => {
-      let querySql = 'select * from goods' + goodsClass == 0 ? '' : ' where class=?';
-      let result = db.query(querySql, [goodsClass]);
+    return new Promise(async resolve => {
+      let querySql = 'select * from goods where class=?';
+      if(goodsClass == 0){
+        querySql = 'select * from goods';
+      }
+      let result = await db.query(querySql, [goodsClass]);
       if(result[1]) return resolve({code: -1, err: result[1]});
       return resolve({code: 0, data: result[0]});
     });
@@ -141,6 +144,20 @@ class Goods {
   getGoodsListByPhone(phone){
     return new Promise(async resolve => {
       let result = await db.query('select * from goods where phone=?', [phone]);
+      if(result[1]) return resolve({code: -1, err: result[1]});
+      return resolve({code: 0, data: result[0]});
+    });
+  }
+  getGoodsById(id){
+    return new Promise(async resolve => {
+      let result = await db.query('select * from goods where id=?', [id]);
+      if(result[1]) return resolve({code: -1, err: result[1]});
+      return resolve({code: 0, data: result[0]});
+    });
+  }
+  deleteGoodsById(id){
+    return new Promise(async resolve => {
+      let result = await db.query('delete from goods where id=?', [id]);
       if(result[1]) return resolve({code: -1, err: result[1]});
       return resolve({code: 0, data: result[0]});
     });

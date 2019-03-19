@@ -5,10 +5,11 @@ import utils from '../lib/utils'
 import ElementUI from "element-ui"
 import axios2 from './instance'
 
-console.log(window);
-
 
 axios.defaults.baseURL = '//39.107.88.223/api';
+if(process.env.NODE_ENV != 'production'){
+  axios.defaults.baseURL = '//localhost:3000/api'
+}
 
 axios.interceptors.request.use(
   config => {
@@ -89,4 +90,24 @@ export let getCollect = (data) => {
 }
 export let getPersonalGoods = (data) => {
   return axios.post('/goods/personalGoods', data);
+}
+export let pay = (data) => {
+  return axios.post('/pay/pay', data);
+}
+export let getClassList = (data) => {
+  return axios.get('/goods/classList' + getQueryString(data));
+}
+export let deleteGoods = (data) => {
+  return axios.post('/goods/delete', data);
+}
+
+function getQueryString(data){
+  let str = '?';
+  Object.keys(data).forEach(item => {
+    str += item;
+    str += '=';
+    str += data[item];
+    str += '&';
+  });
+  return str;
 }

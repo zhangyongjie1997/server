@@ -28,7 +28,7 @@
         <div class="item_info">
           <el-row>
             <el-col :span="16" class="text_left info_name">{{item.name}}</el-col>
-            <el-col :span="8" class="text_right pointer"><i :data-id="item.id" @click="collect" class="iconfont icon-shoucang1 collect" :class="{'active':item.collected}"></i></el-col>
+            <el-col :span="8" class="text_right pointer"><i :data-id="item.id" @click="collect($event, item.id)" class="iconfont icon-shoucang1 collect" :class="{'active':item.collected}"></i></el-col>
           </el-row>
           <el-row class="text_left">
             <el-col class="text_lefr" :span="4">￥{{item.price ? item.price : '未指定价格'}}</el-col>
@@ -76,15 +76,15 @@ export default {
         }
       });
     },
-    collect(e){
+    collect(e, id){
       let that = this;
       let target = e.currentTarget || e.target;
-      let id = target.dataset.id;
+      // let id = target.dataset.id;
       collect({phone: this.$store.state.user.phone, id}).then(res => {
         //this.getHot('hot');
         if(res.code == 0) that.$message.success(res.msg);
         target.classList.toggle('active');
-      })
+      });
     }
   }
 };

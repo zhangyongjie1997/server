@@ -44,12 +44,15 @@
           <el-row class="goods_container">
             <p v-if="goodsList.length == 0" style="font-size:26px;color:#ccc;">您还没有发布过商品 . . .</p>
             <el-row v-line_mid class="collect-item pointer" v-for="(item, index) in goodsList" :key="index">
-              <el-col v-if="goodsList.length > 0" :span="12">
+              <el-col v-if="goodsList.length > 0" :span="9">
                 <router-link class="collect-link" tag="a" :to="'/detail/' + item.id">{{item.name}}</router-link>
               </el-col>
               <el-col :span="4">价格：￥{{item.price}}</el-col>
               <el-col :span="2">分类：{{classFilter(item.class)}}</el-col>
               <el-col class="text-right" :span="6">发布时间：{{item.time}}</el-col>
+              <el-col class="text-center" :span="3">
+                <el-button plain @click="delDialogVisible = true;clickGoodsId = item.id;" type="danger" size="mini">取消上架</el-button>
+              </el-col>
             </el-row>
           <div class="block pagination_container">
             <el-pagination
@@ -69,11 +72,14 @@
         <el-row>
           <el-card class="collect-container">
             <el-row v-line_mid class="collect-item pointer" v-for="(item, index) in collectList" :key="index">
-              <el-col :span="14">
+              <el-col :span="11">
                 <router-link class="collect-link" tag="a" :to="'/detail/' + item.id">{{item.name}}</router-link>
               </el-col>
               <el-col :span="4">价格：￥{{item.price}}</el-col>
               <el-col class="text-right" :span="6">收藏时间：{{item.collectTime}}</el-col>
+              <el-col class="text-center" :span="3">
+                <el-button plain @click="cancelCollect($event, item.id)" type="danger" size="mini">取消收藏</el-button>
+              </el-col>
             </el-row>
           </el-card>
           <div class="block pagination_container">
@@ -107,12 +113,27 @@
         <el-button type="primary" @click="commitEdit">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog
+      title="提示"
+      :visible.sync="delDialogVisible"
+      width="30%">
+      <el-row class="color_danger">删除商品之前，请输入当前账户的密码进行验证！</el-row>
+      <el-form :rules="delRules" :model="delForm" ref="delForm">
+        <el-form-item prop="password">
+          <el-input v-model="delForm.password"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="changeDelDialogVisible">取 消</el-button>
+        <el-button type="primary" @click="deleteGoods">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>;
 <script>
 import { baseUrl } from "../lib/config.js";
 import utils from '../lib/utils.js';
-import { editPersonalInfo, getCollect, getPersonalGoods, getGoodsClass } from "../api/api.js";
+import { deleteGoods, collect, editPersonalInfo, getCollect, getPersonalGoods, getGoodsClass } from "../api/api.js";
 export default {
   data() {
     return {
@@ -133,7 +154,16 @@ export default {
       goodsPageSize: 5,
       currentCollectPage: 0,
       currentGoodsPage: 0,
-      goodsClass: []
+      goodsClass: [],
+      clickGoodsId: '',
+      delDialogVisible: false,
+      delForm: {},
+      delRules:{
+        password: [
+          {required: true, message: '请输入密码', trigger: 'blur'},
+          {min: 6, message: '请输入正确的密码'}
+        ]
+      }
     };
   },
   created(){
@@ -144,6 +174,38 @@ export default {
     this.getGoodsClass();
   },
   methods: {
+    changeDelDialogVisible(){
+      this.delDialogVisible = !this.delDialogVisible;
+    },
+    deleteGoods(e, id){
+      let that = this;
+      this.$refs.delForm.validate(valid => {
+        if(!valid) return;
+        deleteGoods({
+          goodsId: that.clickGoodsId,
+          password: that.delForm.password
+        }).then(res => {
+          if(res.code != 0) return that.$message.error(res.msg);
+          that.changeDelDialogVisible();
+          that.$message.success(res.msg);
+          that.getPersonalGoods();
+        });
+      });
+    },
+    cancelCollect(e, id){
+      let that = this;
+      this.$confirm('确定不再收藏此商品?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        collect({phone: this.$store.state.user.phone, id}).then(res => {
+          //this.getHot('hot');
+          if(res.code == 0) that.$message.success(res.msg);
+          that.getCollect();
+        });
+      }).catch(()=>{});
+    },
     classFilter(value){
       let result;
       this.goodsClass.some((item) => {

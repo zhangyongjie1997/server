@@ -61,7 +61,7 @@ input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0px 1000px white inset !important;
 }
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 0px;
   height: 10px;
   background-color: transparent;
 }
@@ -93,6 +93,9 @@ input:-webkit-autofill {
 }
 .text-right {
   text-align: right !important;
+}
+.text-center{
+  text-align: center !important;
 }
 .margin-top-row {
   margin-top: 50px !important;
@@ -133,5 +136,8 @@ input:-webkit-autofill {
 }
 .color_success{
   color: #67C23A;
+}
+.color_danger{
+  color: #f56c6c;
 }
 </style>
