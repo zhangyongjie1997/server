@@ -18,7 +18,7 @@
       <div ref="list" v-for="(item1, index) in lists" :key="index" class="item_long">
         <transition-group name="fade">
           <router-link tag="div" 
-            :to="'/detail?id=' + item1.id" class="goods_item pointer"
+            :to="'/detail?id=' + item.id" class="goods_item pointer"
             v-for="(item, index) in item1" :key="index">
               <img :src="item.cover" width="100%">
               <div class="item_info">
@@ -190,8 +190,9 @@ export default {
   display: inline-block;
   margin: 0 0 10px 0;
   width: 200px;
-  border: 1px solid #eee;
-  transition: all .2s linear;
+  border: 1px solid #fff;
+  transition: all .2s ease;
+  box-shadow: 0 2px 7px 0 rgba(0, 0, 0, .2);
 }
 .item_info{
   height: 60px;
@@ -212,7 +213,7 @@ export default {
   width: 100%;
 }
 .goods_item:hover{
-  box-shadow: 0 0 10px 0px #ccc;
+  border: 1px solid #ddd;
 }
 .fade-enter-active, .fade-leave-active {
   transition: opacity .5s;

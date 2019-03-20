@@ -18,8 +18,9 @@
       <el-row class="margin-top-row" style="margin-top:20px;">
         <cus-input :label="'昵  称'" v-model="nick_name"></cus-input>
       </el-row>
-      <el-row class="margin-top-row">
+      <el-row class="margin-top-row flex">
         <span @click="register" class="pointer">注册</span>
+        <span @click="back" class="pointer">返回</span>
       </el-row>
     </div>
   </div>
@@ -39,6 +40,9 @@ export default {
     }
   },
   methods: {
+    back(){
+      this.$router.push('/index');
+    },
     register(){
       let that = this;
       let data = {

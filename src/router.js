@@ -76,6 +76,8 @@ router.post('/pay/pay', goodsController.payGoods.bind(goodsController));
 router.post('/order/commit');
 //下架商品
 router.post('/goods/delete', goodsController.deleteGoods.bind(goodsController));
+//dbtest
+router.all('/mongo', goodsController.dbtest);
 
 router.get('/index.html', (req, res, next) => {
   readfile((data) => {

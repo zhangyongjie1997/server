@@ -62,5 +62,13 @@ export default new Router({
         title:'分类'
       }
     },
+    {
+      path: "/detail",
+      name: "detail",
+      component: () => import('./views/detail.vue'),
+      meta:{
+        title:'详情'
+      }
+    },
   ]
 });

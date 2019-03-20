@@ -5,8 +5,17 @@ const path = require('path')
 const async = require('async')
 const payController = require('./payController')
 const UserController = require('./userController')
+const { Shop } = require('../db/mongo')
 
 class goodsController {
+  dbtest(req, res){
+    new Shop({
+      phone: '18522787303',
+      idList: [1,2,3]
+    }).save(function(err, resault){
+      console.log(err, resault)
+    });
+  }
   async getIndexList(req, res, next){
     let that = this;
     let sort =  req.query.sort;

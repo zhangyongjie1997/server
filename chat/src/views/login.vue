@@ -15,8 +15,9 @@
       <el-row class="margin-top-row" style="margin-top:20px;">
         <cus-input type="password" :label="'密  码'" v-model="password"></cus-input>
       </el-row>
-      <el-row class="margin-top-row">
+      <el-row class="margin-top-row flex">
         <span @click="login" class="pointer">登录</span>
+        <span @click="back" class="pointer">返回</span>
       </el-row>
     </div>
   </div>
@@ -36,6 +37,9 @@ export default {
     }
   },
   methods: {
+    back(){
+      this.$router.push('/index');
+    },
     login(){
       let that = this;
       let data = {
