@@ -1,5 +1,6 @@
 const db = require('../db/db')
 const utils = require('../lib/utils')
+const { Shop } = require('../db/mongo')
 
 class User {
   constructor(){
@@ -108,6 +109,42 @@ class User {
       } else {
         resolve({code: -1, err: result.err});
       }
+    });
+  }
+  getOneCollect(phone, id){
+    return new Promise(async resolve => {
+      let result = await db.query('select * from collect where phone=? and id=?', [phone, id]);
+      if(result[1]) return resolve({code: -1, err: result[1]});
+      resolve({code: 0, data: result[0]});
+    });
+  }
+  findShopByPhone(phone){
+    return new Promise(resolve => {
+      Shop.findOne({
+        phone
+      }, (err, result) => {
+        if(err) return resolve({code: -1, err});
+        return resolve({code: 0, data: result});
+      });
+    });
+  }
+  addShop(phone, list){
+    return new Promise(async resolve => {
+      Shop.updateOne({phone}, {idList: list}, (err, result) => {
+        if(err) return resolve({code: -1, err});
+        return resolve({code: 0, data: result});
+      });
+    });
+  }
+  addNewShop(phone, id){
+    return new Promise(resolve => {
+      new Shop().save({
+        phone: phone,
+        idList: [{id, count: 1}]
+      }, (err, result) => {
+        if(err) return resolve({code: -1, err});
+        return resolve({code: 0, data: result});
+      })
     });
   }
 }

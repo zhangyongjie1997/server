@@ -1,18 +1,31 @@
 <template>
   <div id="app">
     <top v-if="$route.path != '/login' && $route.path != '/register'"></top>
-    <router-view />
+    <loginModel @showLogin="loginModle" :odialogVisible="showLoginModle"></loginModel>
+    <router-view @showLogin="loginModle" />
   </div>
 </template>
 <script>
 import top from "./components/top";
+import loginModel from "./components/loginModel";
 import utils from "./lib/utils.js";
 export default {
+  data(){
+    return {
+      showLoginModle: false
+    }
+  },
   created() {
-    console.log(document.querySelector('::-webkit-scrollbar'));
+    //console.log(document.querySelector('::-webkit-scrollbar'));
+  },
+  methods: {
+    loginModle(val){
+      console.log(arguments)
+      this.showLoginModle = val;
+    }
   },
   components: {
-    top
+    top, loginModel
   },
 };
 </script>

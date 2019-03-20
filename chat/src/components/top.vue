@@ -63,9 +63,6 @@ export default {
     }
   },
   computed: {
-    isLogin(){
-      return this.user.phone ? true : false;
-    },
     user(){
       return this.$store.state.user
     }

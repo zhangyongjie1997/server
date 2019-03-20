@@ -6,9 +6,9 @@ class userGoodsController {
   constructor(){}
   async collect(req, res, next){
     let body = req.body;
-    let resault = await user.collect(body.userPhone, body.id);
-    if(resault.code == -1) return utils.sendError(res, resault.err);
-    res.send(resault).end();
+    let result = await user.collect(body.userPhone, body.id);
+    if(result.code == -1) return utils.sendError(res, result.err);
+    res.send(result).end();
   }
   async getCollecion(req, res, next){
     let collectList = await goods.getCollection(req.body.userPhone);

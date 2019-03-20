@@ -8,24 +8,32 @@ module.exports = {
       expiresIn: Math.floor(Date.now() / 1000) + 60 * 60
     });
   },
-  async verify(req, res, next, callback){
-    let urlJudge = await judgeUrl(req.url);
-    if(urlJudge == -1) return next();
+  verify(req, res, next, callback){
+    let urlJudge = judgeUrl(req.url);
+    console.log(urlJudge);
+    if(urlJudge) return next();
     let token = req.body.token;
     jwt.verify(token, secret, (err, decoded) => {
       console.log(err, decoded);
       if(err || !decoded) return res.end(JSON.stringify({code: 4011, data:{}, msg: err.JsonWebTokenError}))
-      if(callback && typeof callback == 'function') return callback();
       next();
+      if(callback && typeof callback == 'function') return callback();
     })
   }
 }
 function judgeUrl(url){
-  switch (url){
-    //case '/goods/upload':
-    case '/user/register':
-    case '/user/login':
-      return -1;
-    case '':
-  }
+  const urlList = [
+    '/static', 
+    '/public', 
+    '/user/register', 
+    '/user/login',
+    '/goods/indexList',
+    '/goods/classList',
+    '/goods/getGoodsClass',
+    '/index/swiper',
+    '/goods/getOne',
+    '/mongo',
+    '/user/getUserByPhone',
+  ]
+  return urlList.some(item => url.indexOf(item) != -1);
 }

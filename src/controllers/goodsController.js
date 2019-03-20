@@ -7,14 +7,15 @@ const payController = require('./payController')
 const UserController = require('./userController')
 const { Shop } = require('../db/mongo')
 
-class goodsController {
+class GoodsController {
   dbtest(req, res){
-    new Shop({
-      phone: '18522787303',
-      idList: [1,2,3]
-    }).save(function(err, resault){
-      console.log(err, resault)
-    });
+    // new Shop({
+    //   phone: '18522787303',
+    //   idList: [1,2,3]
+    // }).save(function(err, result){
+    //   console.log(err, result)
+    // });
+    Shop.remove({phone: '18522787303'})
   }
   async getIndexList(req, res, next){
     let that = this;
@@ -44,9 +45,9 @@ class goodsController {
     }
   }
   async upload(req, res, next){
-    let resault = await goods.addGood(req, res, next);
-    if(resault.code != 0){
-      return utils.sendError(res, resault.err);
+    let result = await goods.addGood(req, res, next);
+    if(result.code != 0){
+      return utils.sendError(res, result.err);
     }
     res.send({code: 0, msg: '上传成功'}).end();
   }
@@ -123,11 +124,16 @@ class goodsController {
     let body = req.body;
     UserController.userVerify(body.userPhone, body.password).then(async result => {
       if(result.code != 0) return utils.sendError(res, result.err);
-      let resault2 = await goods.deleteGoodsById(body.goodsId);
-      if(resault2.code != 0) return utils.sendError(res, resault2.err);
-      res.send({code: 0, msg: '删除成功'});
+      let result2 = await goods.deleteGoodsById(body.goodsId);
+      if(result2.code != 0) return utils.sendError(res, result2.err);
+      res.send({code: 0, msg: '删除成功'}).end();
     });
+  }
+  async getOneGoods(req, res){
+    let result = await goods.getGoodsById(req.body.id);
+    if(result.code != 0) return utils.sendError(res, result.err);
+    res.send({code: 0, data: result.data[0], msg: '获取成功'});
   }
 }
 
-module.exports = new goodsController();
+module.exports = new GoodsController();

@@ -4,6 +4,7 @@ import md5 from '../lib/md5.js'
 import utils from '../lib/utils'
 import ElementUI from "element-ui"
 import axios2 from './instance'
+import router  from '../router'
 
 
 axios.defaults.baseURL = '//39.107.88.223/api';
@@ -99,6 +100,18 @@ export let getClassList = (data) => {
 }
 export let deleteGoods = (data) => {
   return axios.post('/goods/delete', data);
+}
+export let getOneGoods = (data) => {
+  return axios.post('/goods/getOne', data);
+}
+export let judgeCollect = (data) => {
+  return axios.post('/user/judgeCollect', data);
+}
+export let getUserByPhone = (data) => {
+  return axios.post('/user/getUserByPhone', data)
+}
+export let addShop = (data) => {
+  return axios.post('/user/addShop', data);
 }
 
 function getQueryString(data){

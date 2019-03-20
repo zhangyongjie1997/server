@@ -5,6 +5,7 @@ import store from "./store";
 import ElementUI from "element-ui";
 import "./css/element-#000000/index.css";
 import cusInput from './components/cus-input.vue';
+import { loginMinix } from './mixin'
 
 Vue.use(ElementUI);
 Vue.config.productionTip = false;
@@ -48,7 +49,8 @@ Vue.directive('line_mid', {
     }
     ele.style.lineHeight = height;
   }
-})
+});
+Vue.mixin(loginMinix);
 new Vue({
   router,
   store,

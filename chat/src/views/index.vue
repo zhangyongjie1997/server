@@ -80,7 +80,7 @@ export default {
       let that = this;
       let target = e.currentTarget || e.target;
       // let id = target.dataset.id;
-      collect({phone: this.$store.state.user.phone, id}).then(res => {
+      collect({userPhone: this.$store.state.user.phone, id}).then(res => {
         //this.getHot('hot');
         if(res.code == 0) that.$message.success(res.msg);
         target.classList.toggle('active');

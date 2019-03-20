@@ -95,6 +95,9 @@
           </div>
         </el-row>
       </el-tab-pane>
+      <el-tab-pane name="shop" label="购物车">
+
+      </el-tab-pane>
     </el-tabs>
     <el-dialog
       title="编辑信息"

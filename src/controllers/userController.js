@@ -75,10 +75,10 @@ class UserController {
     });
   }
   async avatarUpload(req, res, next) {
-    let resault = await user.uploadAvatar(req)
+    let result = await user.uploadAvatar(req)
     let path;
-    if (resault.code == 0) {
-      path = '//39.107.88.223/api/' + (resault.path).replace('uploads/', 'static/');
+    if (result.code == 0) {
+      path = '//39.107.88.223/api/' + (result.path).replace('uploads/', 'static/');
       res.send({
         code: 0,
         msg: '上传成功',
@@ -88,21 +88,50 @@ class UserController {
       }).end();
       user.updateAvatar(path, req.body.phone);
     } else {
-      utils.sendError(res, resault.err);
+      utils.sendError(res, result.err);
     }
   }
   async editInfo(req, res, next){
     let body = req.body;
-    let resault = await user.updateInfo(body.userPhone, body.phone, body.nick_name);
-    if(resault.code != 0) return utils.sendError(res, resault.err);
-    resault.msg = '修改成功';
-    res.send(resault).end();
+    let result = await user.updateInfo(body.userPhone, body.phone, body.nick_name);
+    if(result.code != 0) return utils.sendError(res, result.err);
+    result.msg = '修改成功';
+    res.send(result).end();
   }
   async collect(req, res, next){
     let body = req.body;
-    let resault = await user.collect(body.userPhone, body.id);
-    if(resault.code == -1) return utils.sendError(res, resault.err);
-    res.send(resault).end();
+    let result = await user.collect(body.userPhone, body.id);
+    if(result.code == -1) return utils.sendError(res, result.err);
+    res.send(result).end();
+  }
+  async judgeCollect(req, res){
+    let result = await user.getOneCollect(req.body.userPhone, req.body.id);
+    if(result.code == -1) return utils.sendError(res, result.err);
+    res.send({code: 0, data: {collect: result.data.length}, msg: '获取成功'}).end();
+  }
+  async getUserByPhone(req, res){
+    let userInfo = await user.findUserByPhone(req.body.userPhone);
+    if(userInfo.length == 0) return resolve({code: -1, msg: '用户不存在', err: {message: '用户不存在'}});
+    res.send({code: 0, data: userInfo[0], msg: '获取成功'}).end();
+  }
+  async addShop(req, res){
+    let result = await user.findShopByPhone(req.body.userPhone);
+    if(result.code == -1) return utils.sendError(res, result.err);
+    if(!result.data){
+      let result2 = await user.addNewShop(req.body.userPhone, req.body.id);
+      if(result2.code == -1) return utils.sendError(res, result.err);
+      res.send({code: 0, data: result2.data, msg: '成功'});
+    }else{
+      let list = result.data.idList, id = req.body.id;
+      let had = list.some((item, index) => {
+        if(item.id == id) list[index].count++;
+        return item.id == id;
+      });
+      if(!had) list.push({id, count: 1});
+      let result3 = await user.addShop(req.body.userPhone, list);
+      if(result3.code == -1) return utils.sendError(res, result.err);
+      res.send({code: 0, data: result3.data, msg: '成功'});
+    }
   }
 }
 

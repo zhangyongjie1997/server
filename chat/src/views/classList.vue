@@ -71,9 +71,6 @@ export default {
       that.getClassList();
     });
   },
-  mounted(){
-    console.log(window.performance)
-  },
   methods: {
     changeClass(e, classId){
       if(classId == this.currentClass) return;
@@ -114,29 +111,36 @@ export default {
       });
     },
     waterFall(){
-      let that = this, minHeight = 1000, minIndex = 0;
-      let slice = this.goodsList.slice(0, 5);
-      let slice2 = this.goodsList.slice(5);
-      Object.keys(that.lists).forEach(item => {
-        that.lists[item] = [];
-      });
-      slice.forEach((item, index) => {
-        that.lists['list' + (index + 1)].push(item);
-      });
-      next();
-      function next(){
-        if(slice2.length == 0) return;
-        minHeight = 1000;
-        that.$nextTick(function(){
-          that.$refs.list.forEach((item, idx) => {
-            if(item.offsetHeight < minHeight) minHeight = item.offsetHeight, minIndex = idx + 1;
-          });
-          that.lists['list' + minIndex].push(slice2.shift());
-          setTimeout(()=>{
-            next();
-          }, 100);
+      let that = this;
+      this.$nextTick(() => {
+        let minHeight = 99999, minIndex = 0;
+        let slice = that.goodsList.slice(0, 5);
+        let slice2 = that.goodsList.slice(5);
+        Object.keys(that.lists).forEach(item => {
+          that.lists[item] = [];
         });
-      }
+        slice.forEach((item, index) => {
+          that.lists['list' + (index + 1)].push(item);
+        });
+        that.$nextTick(() => {
+          next();
+        });
+        function next(){
+          if(slice2.length == 0) return;
+          that.$nextTick(() => {
+            minHeight = 99999, minIndex = 99999;
+            that.$refs.list.forEach((item, idx) => {
+              if(item.offsetHeight < minHeight) minHeight = item.offsetHeight, minIndex = idx + 1;
+            });
+            that.lists['list' + minIndex].push(slice2.shift());
+            setTimeout(()=>{
+              that.$nextTick(() => {
+                next();
+              });
+            }, 300);
+          });
+        }
+      });
     },
     pay(){
       pay({

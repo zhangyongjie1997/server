@@ -33,7 +33,7 @@ export default {
   methods:{
     init(){
       const start = () => {
-        if(document.documentElement.scrollTop>=200){
+        if(document.documentElement.scrollTop>=400){
           this.showGoTop = true;
         }else{
           this.showGoTop = false;
