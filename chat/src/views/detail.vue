@@ -34,9 +34,10 @@
           数量：
           <el-input-number size="mini" v-model="goodsNum" :min="1" :max="3" label="描述文字"></el-input-number>
         </div>
-        <div class="btn_container text-left">
+        <div v-if="!mineGoods" class="btn_container text-left">
           <el-button size="medium" type="danger">立即购买</el-button>
           <el-button @click="addShop" size="medium" type="warning">加入购物车</el-button>
+          <p v-if="hadShop">您的购物车中已存在该商品。</p>
         </div>
         <div class="discribe text-left">
           <p class="discribe_title">描述：</p>
@@ -52,14 +53,15 @@
 </template>
 <script>
 import goTop from '../components/goTop.vue';
-import { addShop, getOneGoods, collect, judgeCollect, getUserByPhone } from '../api/api.js'
+import { shopHadGoods, addShop, getOneGoods, collect, judgeCollect, getUserByPhone } from '../api/api.js'
 export default {
   data() {
     return {
       goods:{},
       goodsUser: {},
       collectText: '收藏',
-      goodsNum: 1
+      goodsNum: 1,
+      hadShop: 0
     };
   },
   created(){
@@ -68,11 +70,26 @@ export default {
   },
   mounted(){},
   components: {goTop},
+  computed:{
+    mineGoods(){
+      return this.$store.state.user.phone == this.goods.phone;
+    }
+  },
   methods:{
-    addShop(){
-      addShop({userPhone: this.$store.state.user.phone, id: this.goods.id})
+    shopHadGoods(){
+      let that = this;
+      shopHadGoods({userPhone: this.$store.state.user.phone, id: this.goods.id})
         .then(res => {
-          
+          if(res.code != 0) return that.$message.error(res.msg);
+          that.hadShop = res.data.had;
+        });
+    },
+    addShop(){
+      let that = this;
+      addShop({userPhone: this.$store.state.user.phone, id: this.goods.id, count: this.goodsNum})
+        .then(res => {
+          that.$message(res.msg);
+          if(res.code == 0) that.shopHadGoods();
         });
     },
     getGoods(id){
@@ -82,7 +99,10 @@ export default {
       }).then(res => {
         if(res.code != 0) return that.$message.error(res.msg);
         that.goods = res.data;
-        if(this.isLogin) that.judgeCollect();
+        if(that.isLogin) {
+          that.judgeCollect();
+          that.shopHadGoods();
+        }
         getUserByPhone({userPhone: that.goods.phone})
           .then(res => {
             if(res.code != 0) return that.$message.error(res.msg);
@@ -191,6 +211,10 @@ export default {
 }
 .right .btn_container{
   margin-top: 50px;
+}
+.right .btn_container p{
+  font-size: 14px;
+  color: #999;
 }
 .discribe{
   color: #888888;

@@ -69,6 +69,7 @@ export default {
   line-height: 50px;
   box-shadow: 0 0 2px #000;
   overflow: hidden;
+  z-index: 999999;
 }
 .container{
   position: relative;

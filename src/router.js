@@ -52,6 +52,12 @@ router.post('/user/getUserByPhone', userController.getUserByPhone.bind(userContr
 router.get('/goods/indexList', goodsController.getIndexList.bind(goodsController));
 //添加购物车
 router.post('/user/addShop', userController.addShop.bind(userController));
+//购物车中是否已存在某商品
+router.post('/user/shopHadGoods', userController.shopHadGoods.bind(userController));
+//获取购物车
+router.post('/user/getShop', userController.getShop.bind(userController));
+//购物车编辑提交
+router.post('/user/editShopSubmit', userController.editShopSubmit.bind(userController));
 //上传
 router.post('/goods/upload', upload.fields([{name: 'cover', maxCount: 1}, {name:'detail', maxCount: 99}]), goodsController.upload.bind(goodsController));
 //分类获取商品

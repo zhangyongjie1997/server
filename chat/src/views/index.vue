@@ -19,7 +19,7 @@
       </el-col>
     </el-row>
     <el-row class="list_container" v-loading="loading">
-      <div class="list_item" v-for="(item, index) in goods" :key="index">
+      <router-link tag="div" :to="'/detail?id=' + item.id" class="list_item" v-for="(item, index) in goods" :key="index">
         <div class="item_img">
           <a href="javascript:void(0);">
             <img :src="item.cover" height="185px">
@@ -35,7 +35,7 @@
             <el-col class="text_right" :span="20">累积收藏{{item.collectCount}}次</el-col>
           </el-row>
         </div>
-      </div>
+      </router-link>
     </el-row>
   </div>
 </template>

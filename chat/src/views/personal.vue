@@ -32,8 +32,8 @@
           </el-col>
         </el-row>
         <el-row class="text_left">
-          <el-button @click="showEdit">编辑</el-button>
-          <el-button @click="showEdit">修改密码</el-button>
+          <el-button @click="showEdit" size="medium">编辑</el-button>
+          <el-button @click="showEdit" size="medium">修改密码</el-button>
         </el-row>
       </el-tab-pane>
       <el-tab-pane name="goods" label="我的商品">
@@ -45,7 +45,7 @@
             <p v-if="goodsList.length == 0" style="font-size:26px;color:#ccc;">您还没有发布过商品 . . .</p>
             <el-row v-line_mid class="collect-item pointer" v-for="(item, index) in goodsList" :key="index">
               <el-col v-if="goodsList.length > 0" :span="9">
-                <router-link class="collect-link" tag="a" :to="'/detail/' + item.id">{{item.name}}</router-link>
+                <router-link class="collect-link" tag="a" :to="'/detail?id=' + item.id">{{item.name}}</router-link>
               </el-col>
               <el-col :span="4">价格：￥{{item.price}}</el-col>
               <el-col :span="2">分类：{{classFilter(item.class)}}</el-col>
@@ -69,11 +69,10 @@
         </div>
       </el-tab-pane>
       <el-tab-pane name="collect" label="我的收藏">
-        <el-row>
-          <el-card class="collect-container">
+        <el-row class="pane_goods">
             <el-row v-line_mid class="collect-item pointer" v-for="(item, index) in collectList" :key="index">
               <el-col :span="11">
-                <router-link class="collect-link" tag="a" :to="'/detail/' + item.id">{{item.name}}</router-link>
+                <router-link class="collect-link" tag="a" :to="'/detail?id=' + item.id">{{item.name}}</router-link>
               </el-col>
               <el-col :span="4">价格：￥{{item.price}}</el-col>
               <el-col class="text-right" :span="6">收藏时间：{{item.collectTime}}</el-col>
@@ -81,7 +80,6 @@
                 <el-button plain @click="cancelCollect($event, item.id)" type="danger" size="mini">取消收藏</el-button>
               </el-col>
             </el-row>
-          </el-card>
           <div class="block pagination_container">
             <el-pagination
               @size-change="handleSizeChange($event, 'collect')"
@@ -96,7 +94,61 @@
         </el-row>
       </el-tab-pane>
       <el-tab-pane name="shop" label="购物车">
-
+        <el-row>
+          <el-table v-if="!editShop" key="mainTable"
+            ref="shopTable"
+            :data="shopList"
+            style="width: 100%">
+            <el-table-column prop="name" label="商品名" width="180">
+            </el-table-column>
+            <el-table-column align="center" prop="price" :formatter="priceFormatter"
+              label="价格"  width="180">
+            </el-table-column>
+            <el-table-column align="center" prop="shopCount"
+              label="数量" width="280">
+            </el-table-column>
+            <el-table-column :formatter="colSumFormatter" align="center"
+              prop="shopCount" label="总价">
+            </el-table-column>
+          </el-table>
+          <el-table v-if="editShop" ref="shopTableEdit" :data="backupShopList"
+            style="width: 100%" key="editTable">
+            <el-table-column prop="name" label="商品名" width="180">
+            </el-table-column>
+            <el-table-column align="center" prop="price"
+              :formatter="priceFormatter" label="价格" width="180">
+            </el-table-column>
+            <el-table-column label="数量" align="center" width="280">
+              <template slot-scope="scope">
+                <el-input-number size="mini" v-model="scope.row.shopCount" :min="1" :max="99" label="描述文字"></el-input-number>
+              </template>
+            </el-table-column>
+            <el-table-column :formatter="colSumFormatter" align="center"
+              prop="shopCount" label="总价" width="180">
+            </el-table-column>
+            <el-table-column label="操作" align="center">
+               <template slot-scope="scope">
+                 <el-button size="mini" type="danger"
+                  @click="handleDeleteCol(scope.$index, scope.row)">删除</el-button>
+               </template>
+            </el-table-column>
+          </el-table>
+          <el-row class="table_footer">
+            <el-col :span="6" class="sum text-left color_danger">合计： ￥{{editShop ? editShopSum : shopSum}}</el-col>
+            <el-col :span="15" class="text-right" v-if="!editShop">
+              <el-button plain
+                type="danger"
+                @click="handleEditShop">编辑</el-button>
+            </el-col>
+            <el-col :span="15" class="text-right" v-if="editShop">
+              <el-button plain
+                type="danger"
+                @click="handleEditShopSave">保存</el-button>
+              <el-button plain
+                @click.stop="handleEditShopCancel">取消</el-button>
+            </el-col>
+          </el-row>
+        </el-row>
       </el-tab-pane>
     </el-tabs>
     <el-dialog
@@ -123,7 +175,7 @@
       <el-row class="color_danger">删除商品之前，请输入当前账户的密码进行验证！</el-row>
       <el-form :rules="delRules" :model="delForm" ref="delForm">
         <el-form-item prop="password">
-          <el-input v-model="delForm.password"></el-input>
+          <el-input v-model="delForm.password" type="password"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -136,7 +188,7 @@
 <script>
 import { baseUrl } from "../lib/config.js";
 import utils from '../lib/utils.js';
-import { deleteGoods, collect, editPersonalInfo, getCollect, getPersonalGoods, getGoodsClass } from "../api/api.js";
+import { editShopSubmit, getShop, deleteGoods, collect, editPersonalInfo, getCollect, getPersonalGoods, getGoodsClass } from "../api/api.js";
 export default {
   data() {
     return {
@@ -166,7 +218,10 @@ export default {
           {required: true, message: '请输入密码', trigger: 'blur'},
           {min: 6, message: '请输入正确的密码'}
         ]
-      }
+      },
+      shopList: [],
+      editShop: false,
+      backupShopList:[]
     };
   },
   created(){
@@ -175,10 +230,54 @@ export default {
       this.activeTab = this.$route.query.tab;
     }
     this.getGoodsClass();
+    this.getShop();
   },
   methods: {
+    getSubmitShopList(){
+      let list = [];
+      this.backupShopList.forEach(item => {
+        list.push({
+          id: item.id,
+          count: item.shopCount
+        });
+      });
+      return list;
+    },
+    handleEditShopSave(){
+      let that = this;
+      editShopSubmit({userPhone: this.$store.state.user.phone, shopList: JSON.stringify(this.getSubmitShopList())})
+        .then(res => {
+          if(res.code != 0){
+            that.$message.error(res.msg);
+            that.backupShopList = utils.deepCopy(that.shopList);
+          }else{
+            that.$message.success(res.msg);
+            that.getShop();
+          }
+          that.editShop = false;
+        });
+    },
+    handleEditShopCancel(){
+      this.backupShopList = utils.deepCopy(this.shopList);
+      this.editShop = false;
+    },
+    handleDeleteCol(index, row){
+      //this.backupShopList.splice(index, 1);
+      this.backupShopList = this.backupShopList.filter(item => item.id != row.id);
+    },
+    handleEditShop(index, row){
+      this.editShop = true;
+    },
+    colSumFormatter(row, column, cellValue, index){
+      return '￥' + (row.price * row.shopCount).toFixed(2);
+      console.log(row);
+    },
+    priceFormatter(row, column, cellValue, index){
+      return '￥' + Number(cellValue).toFixed(2);
+    },
     changeDelDialogVisible(){
       this.delDialogVisible = !this.delDialogVisible;
+      this.delForm.password = '';
     },
     deleteGoods(e, id){
       let that = this;
@@ -207,7 +306,7 @@ export default {
           if(res.code == 0) that.$message.success(res.msg);
           that.getCollect();
         });
-      }).catch(()=>{});
+      }).catch(() => {});
     },
     classFilter(value){
       let result;
@@ -261,12 +360,24 @@ export default {
         case '1':
           that.getPersonalGoods();
           break;
+        case '3':
+          that.getShop();
+          break;
       }
+    },
+    getShop(){
+      let that = this;
+      getShop({userPhone: this.$store.getters.get('user[phone]')})
+        .then(res => {
+          if(res.code != 0) return that.$message.error(res.msg);
+          that.shopList = res.data;
+          that.backupShopList = utils.deepCopy(res.data);
+        });
     },
     getCollect(){
       let that = this;
       getCollect({
-        phone: this.$store.getters.get('user[phone]'),
+        userPhone: this.$store.getters.get('user[phone]'),
         pageSize: that.collectPageSize,
         currentPage: that.currentCollectPage,
       }).then(res => {
@@ -323,6 +434,20 @@ export default {
   computed: {
     user(){
       return this.$store.state.user;
+    },
+    shopSum(){
+      let sum = 0;
+      this.shopList.forEach((item) => {
+        sum += item.price * item.shopCount;
+      });
+      return Number(sum).toFixed(2);
+    },
+    editShopSum(){
+      let sum = 0;
+      this.backupShopList.forEach((item) => {
+        sum += item.price * item.shopCount;
+      });
+      return Number(sum).toFixed(2);
     }
   }
 };
@@ -365,5 +490,13 @@ export default {
 }
 .pagination_container{
   margin-top: 10px;
+}
+.table_footer{
+  line-height: 40px;
+  margin-top: 20px;
+}
+.table_footer .sum {
+  font-weight: bold;
+  font-size: 20px;
 }
 </style>

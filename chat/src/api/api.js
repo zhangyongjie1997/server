@@ -16,8 +16,6 @@ axios.interceptors.request.use(
   config => {
     let token = utils.getLocalStorage("token") || "";
     if (config.method == "post") {
-      console.log(config);
-      
       if (config.data.password) {
         config.data.password = md5(config.data.password);
       }
@@ -112,6 +110,15 @@ export let getUserByPhone = (data) => {
 }
 export let addShop = (data) => {
   return axios.post('/user/addShop', data);
+}
+export let shopHadGoods = (data) => {
+  return axios.post('/user/shopHadGoods', data);
+}
+export let getShop = (data) => {
+  return axios.post('/user/getShop', data);
+}
+export let editShopSubmit = (data) => {
+  return axios.post('/user/editShopSubmit', data);
 }
 
 function getQueryString(data){

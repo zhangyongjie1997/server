@@ -1,6 +1,7 @@
 const db = require('../db/db')
 const utils = require('../lib/utils')
 const { Shop } = require('../db/mongo')
+const async = require('async')
 
 class User {
   constructor(){
@@ -136,15 +137,36 @@ class User {
       });
     });
   }
-  addNewShop(phone, id){
+  addNewShop(phone, id, count){
     return new Promise(resolve => {
-      new Shop().save({
-        phone: phone,
-        idList: [{id, count: 1}]
-      }, (err, result) => {
+      new Shop({phone, idList: [{id, count}]})
+       .save((err, result) => {
+          if(err) return resolve({code: -1, err});
+          return resolve({code: 0, data: result});
+       });
+    });
+  }
+  deleteFormCollectAll(id){
+    return new Promise(async resolve => {
+      let result = await db.query('delete from collect where id=?', [id]);
+      if(result[1]) return resolve({code: -1, err: result[1]});
+      resolve({code: 0, data: result[0]});
+    });
+  }
+  deleteFromShopAll(id){
+    return new Promise(resolve => {
+      Shop.find({}, (err, data) => {
         if(err) return resolve({code: -1, err});
-        return resolve({code: 0, data: result});
-      })
+        async.eachSeries(data, async (shopItem) => {
+          if(shopItem.idList.indexOf(Number(id)) != -1 || shopItem.idList.indexOf(String(id)) != -1){
+            let list = shopItem.idList.filter(item => item != id);
+            await this.addShop(shopItem.phone, list);
+          }
+        }, (err, result) => {
+          if(err) return resolve({code: -1, err});
+          return resolve({code: 0});
+        });
+      });
     });
   }
 }

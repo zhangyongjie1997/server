@@ -1,6 +1,8 @@
 const user = require('../models/user')
 const jwt = require("../lib/jwt")
 const utils = require('../lib/utils')
+const async = require('async')
+const goods = require('../models/goods')
 
 class UserController {
   constructor() {}
@@ -21,20 +23,20 @@ class UserController {
               code: 0,
               msg: 'success',
               data: res2
-            }))
+            }));
           }
         }).catch(err => {
           console.log(err);
           response.end(JSON.stringify({
             code: -1,
             msg: err.message
-          }))
+          }));
         })
       } else {
         response.end(JSON.stringify({
           code: -1,
           msg: '手机号已存在'
-        }))
+        }));
       }
     })
   }
@@ -118,20 +120,52 @@ class UserController {
     let result = await user.findShopByPhone(req.body.userPhone);
     if(result.code == -1) return utils.sendError(res, result.err);
     if(!result.data){
-      let result2 = await user.addNewShop(req.body.userPhone, req.body.id);
+      let result2 = await user.addNewShop(req.body.userPhone, req.body.id, req.body.count);
       if(result2.code == -1) return utils.sendError(res, result.err);
       res.send({code: 0, data: result2.data, msg: '成功'});
     }else{
       let list = result.data.idList, id = req.body.id;
       let had = list.some((item, index) => {
-        if(item.id == id) list[index].count++;
+        if(item.id == id) list[index].count = req.body.count * 1 + list[index].count * 1;
         return item.id == id;
       });
-      if(!had) list.push({id, count: 1});
+      if(!had) list.push({id, count: req.body.count * 1});
       let result3 = await user.addShop(req.body.userPhone, list);
       if(result3.code == -1) return utils.sendError(res, result.err);
-      res.send({code: 0, data: result3.data, msg: '成功'});
+      res.send({code: 0, data: result3.data, msg: '添加成功'});
     }
+  }
+  async shopHadGoods(req, res){
+    let result = await user.findShopByPhone(req.body.userPhone);
+    if(result.code == -1) return utils.sendError(res, result.err);
+    if(!result.data) return res.send({code: 0, data: {had: 0}, msg: '成功'}).end();
+    let list = result.data.idList;
+    let had = list.some(item => {
+      return item.id == req.body.id;
+    });
+    return res.send({code: 0, data: {had: had ? 1 : 0}, msg: '成功'}).end();
+  }
+  async getShop(req, res){
+    let result = await user.findShopByPhone(req.body.userPhone);
+    if(result.code == -1) return utils.sendError(res, result.err);
+    if(!result.data) res.send({code: 0, data: [], msg: '成功'}).end();
+    let list = [];
+    async.eachSeries(result.data.idList, async (listItem) => {
+      let goodsItem = await goods.getGoodsById(listItem.id);
+      if(goodsItem.code != 0) return utils.sendError(res, goodsItem.err);
+      if(goodsItem.data[0]){
+        goodsItem.data[0].shopCount = listItem.count;
+        list.push(goodsItem.data[0]);
+      }
+    }, (err, result) => {
+      if(err) return utils.sendError(res, err);
+      res.send({code: 0, data: list, msg: '成功'});
+    });
+  }
+  async editShopSubmit(req, res){
+    let result = await user.addShop(req.body.userPhone, JSON.parse(req.body.shopList));
+    if(result.code == -1) return utils.sendError(res, result.err);
+    return res.send({code: 0, msg: '成功'}).end();
   }
 }
 

@@ -123,8 +123,10 @@ class Goods {
         async (item) => {
           let result2 = await db.query('select * from goods where id=?', [item.id]);
           if(result2[1]) return resolve({code: -1, err: result[1]});
-          result2[0][0].collectTime = item.time;
-          collectList.push(result2[0][0]);
+          if(result2[0][0]){
+            result2[0][0].collectTime = item.time;
+            collectList.push(result2[0][0]);
+          }
         },
         () => { resolve({code: 0, data: collectList.reverse()}); }
       );

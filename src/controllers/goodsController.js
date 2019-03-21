@@ -8,14 +8,17 @@ const UserController = require('./userController')
 const { Shop } = require('../db/mongo')
 
 class GoodsController {
-  dbtest(req, res){
+  async dbtest(req, res){
     // new Shop({
     //   phone: '18522787303',
     //   idList: [1,2,3]
     // }).save(function(err, result){
     //   console.log(err, result)
     // });
-    Shop.remove({phone: '18522787303'})
+    Shop.remove({phone: '18522787303'}, () => {
+      console.log(arguments)
+    })
+    //await user.deleteFromShopAll();
   }
   async getIndexList(req, res, next){
     let that = this;
@@ -126,6 +129,10 @@ class GoodsController {
       if(result.code != 0) return utils.sendError(res, result.err);
       let result2 = await goods.deleteGoodsById(body.goodsId);
       if(result2.code != 0) return utils.sendError(res, result2.err);
+      let result3 = await user.deleteFormCollectAll(body.goodsId);
+      if(result3.code != 0) return utils.sendError(res, result2.err);
+      let result4 = await user.deleteFormCollectAll();
+      if(result4.code != 0) return utils.sendError(res, result2.err);
       res.send({code: 0, msg: '删除成功'}).end();
     });
   }
