@@ -5,7 +5,7 @@ const secret = require('./config').secret
 module.exports = {
   getToken(payload) {
     return jwt.sign(payload, secret, {
-      expiresIn: Math.floor(Date.now() / 1000) + 60 * 60
+      expiresIn: Math.floor(Date.now() / 1000) + 60 * 60  //一个小时
     });
   },
   verify(req, res, next, callback){
@@ -23,9 +23,9 @@ module.exports = {
 }
 function judgeUrl(url){
   const urlList = [
-    '/static', 
-    '/public', 
-    '/user/register', 
+    '/static',
+    '/public',
+    '/user/register',
     '/user/login',
     '/goods/indexList',
     '/goods/classList',
@@ -33,6 +33,7 @@ function judgeUrl(url){
     '/index/swiper',
     '/goods/getOne',
     '/mongo',
+    '/user/avatar',
     '/user/getUserByPhone',
   ]
   return urlList.some(item => url.indexOf(item) != -1);

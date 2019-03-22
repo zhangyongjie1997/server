@@ -1,11 +1,12 @@
 const db = require('../db/db')
-const utils = require('../lib/utils')
+const Utils = require('../lib/utils')
 const { Shop } = require('../db/mongo')
 const async = require('async')
 
-class User {
+class User extends Utils{
   constructor(){
-    this.promiseify = utils.promiseify;
+    super();
+    this.promiseify = this.promiseify;
   }
 
   findUserByPhone(phone) {
@@ -69,7 +70,7 @@ class User {
       let collect = await this.findCollect(phone, id), result;
       if(collect.code == 0){
         if(collect.data.length <= 0){
-          result = await db.query('insert into collect values(?,?,?)', [phone, id, utils.formatDate(new Date())]);
+          result = await db.query('insert into collect values(?,?,?)', [phone, id, this.formatDate(new Date())]);
           if(result[1]) return resolve({code: -1, err: result[1]});
           resolve({code: 0, msg: "收藏成功"});
         }else{
@@ -91,7 +92,7 @@ class User {
       let tmp_path = req.file.path;
       let target_path = 'uploads/' + req.body.phone;
       let file_name = 'avatar.' + ExtensionName;
-      let result = await utils.writeSingleFile(target_path, file_name, tmp_path);
+      let result = await this.writeSingleFile(target_path, file_name, tmp_path);
       if (result.code == 0) {
         resolve({code: 0, path: result.path});
       } else {
@@ -99,12 +100,12 @@ class User {
       }
     });
   }
-  writeSingleFile(req, res, path, avatar) {
+  userWriteSingleFile(req, res, path, avatar) {
     return new Promise(async (resolve, reject) => {
       let tmp_path = req.file.path;
       let target_path = 'uploads/' + req.body.phone;
       let file_name = avatar || req.file.originalname;
-      let result = await utils.writeSingleFile(target_path, file_name, tmp_path);
+      let result = await this.writeSingleFile(target_path, file_name, tmp_path);
       if (result.code == 0) {
         resolve({code: 0, path: result.path});
       } else {

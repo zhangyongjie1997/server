@@ -1,4 +1,4 @@
-const utils = require('../lib/utils')
+const Utils = require('../lib/utils')
 const api = require('../request/request')
 const iconv = require('iconv-lite')
 const Alipay = require('../pay/alipay')
@@ -13,8 +13,8 @@ const ali = new Alipay({
   signType: 'RSA2'
 });
 
-class payController{
-  constructor(){}
+class payController extends Utils{
+  constructor(){super()}
   verifyCallback(req, res, next){
     ali.signVerify(req.body.sign);
   }
@@ -24,7 +24,7 @@ class payController{
     let url=  ali.webPay({
       body: "ttt",
       subject: "ttt1",
-      outTradeId: utils.getTimestamp(),
+      outTradeId: this.getTimestamp(),
       timeout: '90m',
       amount: "0.1",
       sellerId: '',

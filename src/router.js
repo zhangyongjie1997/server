@@ -12,26 +12,30 @@ const userController = new UserController()
 
 const upload = multer({ dest: './uploads/' })
 
+router.options('*', (req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With");
+  res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+  res.send(200);
+  res.end();
+});
+
 router.all('*', (req, res, next) => {
   let data = req.body;
   req.url = req.url.replace('/api', '');
   console.log('请求参数:'+ JSON.stringify(data)+',请求路径:' + req.url);
-  if(req.url.indexOf('/static') != -1){
-    req.url = decodeURIComponent(req.url);
-  }
   if(req.headers.host.indexOf('localhost') > -1 || req.headers.host.indexOf('127.0.0.1') > -1){
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With");
     res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
   }
+  if(req.url.indexOf('/static') != -1){
+    req.url = decodeURIComponent(req.url);
+  }
   res.header("X-Powered-By",'3.2.1');
   res.header("Content-Type", "application/json;charset=utf-8");
   jwt.verify(req, res, next);
   //next();
-});
-router.options('*', (req, res, next) => {
-  res.send(200);
-  res.end();
 });
 
 // //token验证

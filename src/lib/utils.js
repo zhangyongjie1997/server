@@ -18,7 +18,10 @@ Date.prototype.format = function (fmt) {
   return fmt;
 }
 
-const utils = {
+class Utils {
+  static type(obj){
+    return (Object.prototype.toString.call(obj)).split(' ')[1].toString().split(']')[0]
+  }
   /**
    * @method 用于判断文件夹是否存在,不存在就创建
    * @param {String} targetPath 文件夹路径
@@ -45,7 +48,7 @@ const utils = {
         
       }
     })
-  },
+  }
   /**
    * @method 写入单个文件
    * @param {String} target_path 目标路径，用于写入以及判断文件夹是否存在
@@ -66,7 +69,7 @@ const utils = {
         resolve({code:-1, err: result.err});
       }
     })
-  },
+  }
   readFile(targetPath){
     return new Promise((resolve, reject) => {
       fs.readFile(path.resolve('./', targetPath), (err, data) => {
@@ -74,17 +77,17 @@ const utils = {
         resolve({code: 0, data: JSON.parse(data.toString())});
       })
     })
-  },
+  }
   getDirInfo(targetPath){
     return new Promise((resolve, reject) => {
       const info = fs.readdirSync(path.resolve('./', targetPath));
       resolve({code: 0, data: info})
     })
-  },
+  }
   sendError(res, err){
     console.log(err);
     res.end(JSON.stringify({code: -1, msg: err.message}))
-  },
+  }
   getTimestamp(data){
     if(!data) return new Date().getTime();
     let mydate = data;
@@ -92,10 +95,10 @@ const utils = {
       mydate = data.replace(/-/g, '/');
     }
     return new Date(mydate).getTime();
-  },
+  }
   promiseify(callback){
     return new Promise(callback(resolve, reject));
-  },
+  }
   formatDate(date = new Date(), format) {
     format = format || "yyyy-MM-dd hh:mm:ss";
     var list = {
@@ -117,14 +120,14 @@ const utils = {
       });
     })
     return format;
-  },
+  }
   getDateTime(){
     return this.formatDate(new Date(), "yyyy-MM-dd hh:mm:ss");
-  },
+  }
   sortList(list = [], sort){
     if(sort && sort == 'new'){
       list.sort((a, b)=>{
-        if(utils.getTimestamp(a.time) > utils.getTimestamp(b.time)) return -1;
+        if(this.getTimestamp(a.time) > this.getTimestamp(b.time)) return -1;
         return 1;
       });
     }else{
@@ -134,7 +137,7 @@ const utils = {
       });
     }
     return list;
-  },
+  }
   deepCopy(obj) {
     let that = this;
     if(!(obj instanceof Object)) return obj;
@@ -145,7 +148,7 @@ const utils = {
         data[key] = obj[key] instanceof Object ?
          Array.isArray(obj[key]) ?
           arrayCopy(obj[key]) :
-          that.deepCopy(obj[key]) :
+           that.deepCopy(obj[key]) :
             obj[key];
       }
     }
@@ -161,4 +164,4 @@ const utils = {
   }
   
 }
-module.exports = utils
+module.exports = Utils;

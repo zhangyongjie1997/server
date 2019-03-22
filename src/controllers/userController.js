@@ -1,11 +1,11 @@
 const user = require('../models/user')
 const jwt = require("../lib/jwt")
-const utils = require('../lib/utils')
+const Utils = require('../lib/utils')
 const async = require('async')
 const goods = require('../models/goods')
 
-class UserController {
-  constructor() {}
+class UserController extends Utils{
+  constructor() {super()}
   register(request, response, next) {
     let data = request.body;
     user.findUserByPhone(data.phone).then(res1 => {
@@ -77,7 +77,7 @@ class UserController {
     });
   }
   async avatarUpload(req, res, next) {
-    let result = await user.uploadAvatar(req)
+    let result = await user.uploadAvatar(req);
     let path;
     if (result.code == 0) {
       path = '//39.107.88.223/api/' + (result.path).replace('uploads/', 'static/');
@@ -90,25 +90,25 @@ class UserController {
       }).end();
       user.updateAvatar(path, req.body.phone);
     } else {
-      utils.sendError(res, result.err);
+      this.sendError(res, result.err);
     }
   }
   async editInfo(req, res, next){
     let body = req.body;
     let result = await user.updateInfo(body.userPhone, body.phone, body.nick_name);
-    if(result.code != 0) return utils.sendError(res, result.err);
+    if(result.code != 0) return this.sendError(res, result.err);
     result.msg = '修改成功';
     res.send(result).end();
   }
   async collect(req, res, next){
     let body = req.body;
     let result = await user.collect(body.userPhone, body.id);
-    if(result.code == -1) return utils.sendError(res, result.err);
+    if(result.code == -1) return this.sendError(res, result.err);
     res.send(result).end();
   }
   async judgeCollect(req, res){
     let result = await user.getOneCollect(req.body.userPhone, req.body.id);
-    if(result.code == -1) return utils.sendError(res, result.err);
+    if(result.code == -1) return this.sendError(res, result.err);
     res.send({code: 0, data: {collect: result.data.length}, msg: '获取成功'}).end();
   }
   async getUserByPhone(req, res){
@@ -118,10 +118,10 @@ class UserController {
   }
   async addShop(req, res){
     let result = await user.findShopByPhone(req.body.userPhone);
-    if(result.code == -1) return utils.sendError(res, result.err);
+    if(result.code == -1) return this.sendError(res, result.err);
     if(!result.data){
       let result2 = await user.addNewShop(req.body.userPhone, req.body.id, req.body.count);
-      if(result2.code == -1) return utils.sendError(res, result.err);
+      if(result2.code == -1) return this.sendError(res, result.err);
       res.send({code: 0, data: result2.data, msg: '成功'});
     }else{
       let list = result.data.idList, id = req.body.id;
@@ -131,13 +131,13 @@ class UserController {
       });
       if(!had) list.push({id, count: req.body.count * 1});
       let result3 = await user.addShop(req.body.userPhone, list);
-      if(result3.code == -1) return utils.sendError(res, result.err);
+      if(result3.code == -1) return this.sendError(res, result.err);
       res.send({code: 0, data: result3.data, msg: '添加成功'});
     }
   }
   async shopHadGoods(req, res){
     let result = await user.findShopByPhone(req.body.userPhone);
-    if(result.code == -1) return utils.sendError(res, result.err);
+    if(result.code == -1) return this.sendError(res, result.err);
     if(!result.data) return res.send({code: 0, data: {had: 0}, msg: '成功'}).end();
     let list = result.data.idList;
     let had = list.some(item => {
@@ -147,24 +147,24 @@ class UserController {
   }
   async getShop(req, res){
     let result = await user.findShopByPhone(req.body.userPhone);
-    if(result.code == -1) return utils.sendError(res, result.err);
+    if(result.code == -1) return this.sendError(res, result.err);
     if(!result.data) res.send({code: 0, data: [], msg: '成功'}).end();
     let list = [];
     async.eachSeries(result.data.idList, async (listItem) => {
       let goodsItem = await goods.getGoodsById(listItem.id);
-      if(goodsItem.code != 0) return utils.sendError(res, goodsItem.err);
+      if(goodsItem.code != 0) return this.sendError(res, goodsItem.err);
       if(goodsItem.data[0]){
         goodsItem.data[0].shopCount = listItem.count;
         list.push(goodsItem.data[0]);
       }
     }, (err, result) => {
-      if(err) return utils.sendError(res, err);
+      if(err) return this.sendError(res, err);
       res.send({code: 0, data: list, msg: '成功'});
     });
   }
   async editShopSubmit(req, res){
     let result = await user.addShop(req.body.userPhone, JSON.parse(req.body.shopList));
-    if(result.code == -1) return utils.sendError(res, result.err);
+    if(result.code == -1) return this.sendError(res, result.err);
     return res.send({code: 0, msg: '成功'}).end();
   }
 }

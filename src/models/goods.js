@@ -1,11 +1,11 @@
 const Mock = require('mockjs')
-const utils = require('../lib/utils')
+const Utils = require('../lib/utils')
 const db = require('../db/db')
 const async = require('async')
 const path = require('path')
 
-class Goods {
-  constructor(){}
+class Goods extends Utils{
+  constructor(){super()}
   async getIndexList(){
     let data = [];
     return new Promise(async resolve => {
@@ -49,7 +49,7 @@ class Goods {
       let tmp_path = req.file.path;
       let target_path = 'uploads/'+ req.body.phone;
       let file_name = req.file.originalname;
-      let result = await utils.writeSingleFile(target_path, file_name, tmp_path);
+      let result = await this.writeSingleFile(target_path, file_name, tmp_path);
       if(result.code == 0){
         resolve({code: 0, path: result.path})
       }else{
@@ -62,31 +62,31 @@ class Goods {
       let cover;
       const phone = req.body.userPhone;
       const target_path = 'uploads/'+ phone + '/goods';
-      const result = await utils.dir_exist_create(target_path);
-      if (result.code != 0) return utils.sendError(res, result.err);
-      const result2 = await utils.getDirInfo(target_path);
-      if (result2.code != 0) return utils.sendError(res, result.err);
+      const result = await this.dir_exist_create(target_path);
+      if (result.code != 0) return this.sendError(res, result.err);
+      const result2 = await this.getDirInfo(target_path);
+      if (result2.code != 0) return this.sendError(res, result.err);
       const goodNo = result2.data.length + 1;
       const target_path2 = target_path + '/good' + goodNo;
-      const result3 = await utils.dir_exist_create(target_path2);
-      if (result3.code != 0) return utils.sendError(res, result.err);
+      const result3 = await this.dir_exist_create(target_path2);
+      if (result3.code != 0) return this.sendError(res, result.err);
       for (const key in req.files) {
         const target_path3 = target_path2  + '/' + key;
-        const result4 = await utils.dir_exist_create(target_path3);
-        if (result4.code != 0) return utils.sendError(res, result.err);
+        const result4 = await this.dir_exist_create(target_path3);
+        if (result4.code != 0) return this.sendError(res, result.err);
         req.files[key].forEach(async (file) => {
           const tmp_path = file.path;
           const file_name = file.originalname;
           if(key == 'cover'){
             cover = ('//39.107.88.223/api/' + target_path3 + '/' + file_name).replace('uploads/', 'static/');
           }
-          const result5 = await utils.writeSingleFile(target_path3, file_name, tmp_path);
-          if (result5.code != 0) return utils.sendError(res, result.err);
+          const result5 = await this.writeSingleFile(target_path3, file_name, tmp_path);
+          if (result5.code != 0) return this.sendError(res, result.err);
         })
       }
       let result6 = await this.insertGoods(req.body, goodNo, cover);
       console.log(result6)
-      if (result6.code != 0) return utils.sendError(res, result.err);
+      if (result6.code != 0) return this.sendError(res, result.err);
       resolve({code:0, msg: "上传成功"});
     })
   }
@@ -95,7 +95,7 @@ class Goods {
     return new Promise(async resolve => {
       let result = await db.query(
         'insert into goods values(?,?,?,?,?,?,?,?);', 
-        [await _this.getNextGoodsId(), utils.getDateTime(), data.name, data.describe || '', data.userPhone, data.price, data.goodsClass, cover]
+        [await _this.getNextGoodsId(), this.getDateTime(), data.name, data.describe || '', data.userPhone, data.price, data.goodsClass, cover]
       );
       if(result[1]) return resolve({code: -1, err: result[1]});
       resolve({code: 0, msg: "成功"});
@@ -108,7 +108,7 @@ class Goods {
   }
   getGoodsClass(){
     return new Promise(async resolve => {
-      let result = await utils.readFile(path.resolve(__dirname, '../../public/goods/goodsClass.json'));
+      let result = await this.readFile(path.resolve(__dirname, '../../public/goods/goodsClass.json'));
       if(result.code != 0) return resolve({code: -1, err: result.err});
       resolve({code: 0, data: result.data});
     });
