@@ -3,6 +3,7 @@ const jwt = require("../lib/jwt")
 const Utils = require('../lib/utils')
 const async = require('async')
 const goods = require('../models/goods')
+const request = require('../request/request')
 
 class UserController extends Utils{
   constructor() {super()}
@@ -80,7 +81,7 @@ class UserController extends Utils{
     let result = await user.uploadAvatar(req);
     let path;
     if (result.code == 0) {
-      path = '//39.107.88.223/api/' + (result.path).replace('uploads/', 'static/');
+      path = '//39.107.88.223/api' + (result.path).replace('uploads/', 'static/');
       res.send({
         code: 0,
         msg: '上传成功',
@@ -99,6 +100,16 @@ class UserController extends Utils{
     if(result.code != 0) return this.sendError(res, result.err);
     result.msg = '修改成功';
     res.send(result).end();
+  }
+  async changePwd(req, res){
+    UserController.userVerify(req.body.userPhone, req.body.oldPassword)
+      .then(async result => {
+        if(result.code != 0) return res.json(result);
+        let result2 = await user.changePwd(req.body.userPhone, req.body.newPassword);
+        if(result2.code != 0) return this.sendError(res, result.err);
+        result.msg = '修改成功';
+        res.send(result).end();
+      });
   }
   async collect(req, res, next){
     let body = req.body;
@@ -166,6 +177,15 @@ class UserController extends Utils{
     let result = await user.addShop(req.body.userPhone, JSON.parse(req.body.shopList));
     if(result.code == -1) return this.sendError(res, result.err);
     return res.send({code: 0, msg: '成功'}).end();
+  }
+
+  async getCityList(req, res){
+    request.getCityLIst(req.query.cityId)
+      .then(result => {
+        res.send({code: 0, data: result.data.data, msg: '获取成功'}).end();
+      }).catch(err => {
+        res.send({code: 0, data: err.data, msg: '获取成功'}).end();
+      });
   }
 }
 

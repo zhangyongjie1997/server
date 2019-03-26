@@ -111,6 +111,7 @@ class Utl {
    */
   request(opts) {
     return new Promise(function (resolve, reject) {
+      console.log(opts);
       request(opts, function (err, res, body) {
         if (err) {
           reject(err);

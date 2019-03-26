@@ -2,6 +2,7 @@ const db = require('../db/db')
 const Utils = require('../lib/utils')
 const { Shop } = require('../db/mongo')
 const async = require('async')
+const {orderStatus} = require('../lib/config')
 
 class User extends Utils{
   constructor(){
@@ -48,6 +49,13 @@ class User extends Utils{
         let newUserList = await this.findUserByPhone(phone);
         resolve({code: 0, data: newUserList[0]});
       }
+    });
+  }
+  changePwd(phone, pwd){
+    return new Promise(async resolve=> {
+      let result = await db.query('update user set password=? where phone=?', [phone, pwd]);
+      if(result[1]) return resolve({code: -1, err: result[1]});
+      resolve({code: 0, data: result[0]});
     });
   }
   findCollect(phone, id){
@@ -170,5 +178,6 @@ class User extends Utils{
       });
     });
   }
+  
 }
 module.exports = new User();

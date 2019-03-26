@@ -35,6 +35,9 @@ function judgeUrl(url){
     '/mongo',
     '/user/avatar',
     '/user/getUserByPhone',
+    '/goods/upload',
+    '/pay/callback',
+    '/user/cityList',
   ]
   return urlList.some(item => url.indexOf(item) != -1);
 }

@@ -6,7 +6,7 @@ const multer = require('multer')
 const router = express.Router()
 const UserController = require('./controllers/userController')
 const goodsController = require('./controllers/goodsController')
-const payController = require('./controllers/payController')
+const orderController = require('./controllers/orderController')
 
 const userController = new UserController()
 
@@ -48,6 +48,8 @@ router.post('/user/login', userController.login.bind(userController));
 router.post('/user/avatar', upload.single('avatar'), userController.avatarUpload.bind(userController));
 //修改个人信息
 router.post('/user/editInfo', userController.editInfo.bind(userController));
+//修改密码
+router.post('/user/changePwd', userController.changePwd.bind(userController));
 //收藏
 router.post('/user/collect', userController.collect.bind(userController));
 //获取用户信息
@@ -79,15 +81,25 @@ router.get('/index/swiper', goodsController.getIndexImg.bind(goodsController));
 ///goods/getOne
 router.post('/goods/getOne', goodsController.getOneGoods.bind(goodsController));
 //支付回调
-router.all('/pay/callback', payController.verifyCallback.bind(payController));
+router.all('/pay/callback', orderController.verifyCallback.bind(orderController));
 //支付
 router.post('/pay/pay', goodsController.payGoods.bind(goodsController));
-//提交订单
-router.post('/order/commit');
 //下架商品
 router.post('/goods/delete', goodsController.deleteGoods.bind(goodsController));
+//提交订单
+router.post('/user/orderCommit', orderController.orderCommit.bind(orderController));
+//订单支付
+router.post('/order/pay', orderController.pay.bind(orderController));
+//取消订单
+router.post('/order/cancel', orderController.orderCancel.bind(orderController));
+//获取个人订单
+router.post('/order/personalOrder', orderController.personalOrder.bind(orderController));
+//获取订单状态
+router.post('/user/orderStatus', orderController.getOrderStatus.bind(orderController));
 //dbtest
 router.all('/mongo', goodsController.dbtest.bind(goodsController));
+//获取城市列表
+router.get('/user/cityList', userController.getCityList.bind(userController));
 
 router.get('/index.html', (req, res, next) => {
   readfile((data) => {

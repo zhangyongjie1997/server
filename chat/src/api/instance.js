@@ -3,8 +3,13 @@ import md5 from '../lib/md5.js'
 import utils from '../lib/utils'
 import ElementUI from "element-ui"
 
+let baseURL = '//39.107.88.223/api';
+if(process.env.NODE_ENV != 'production'){
+  baseURL = '//localhost:3000/api'
+}
+
 const axios2 = axios.create({
-  baseURL: '//localhost:3000',
+  baseURL,
   headers: {
     'Content-Type': 'multipart/form-data'
   }

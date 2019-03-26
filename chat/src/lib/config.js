@@ -1,4 +1,4 @@
-let baseUrl = '//39.107.88.223/api/';
+let baseUrl = '//zyjbiubiu.cn/api/';
 if(process.env.NODE_ENV != 'production'){
   baseUrl = '//localhost:3000/api/'
 }

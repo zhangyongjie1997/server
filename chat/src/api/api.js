@@ -7,7 +7,7 @@ import axios2 from './instance'
 import router  from '../router'
 
 
-axios.defaults.baseURL = '//39.107.88.223/api';
+axios.defaults.baseURL = '//zyjbiubiu.cn/api';
 if(process.env.NODE_ENV != 'production'){
   axios.defaults.baseURL = '//localhost:3000/api'
 }
@@ -22,6 +22,13 @@ axios.interceptors.request.use(
       if (config.data.confirmPassword) {
         config.data.confirmPassword = md5(config.data.confirmPassword);
       }
+      if (config.data.oldPassword) {
+        config.data.oldPassword = md5(config.data.oldPassword);
+      }
+      if (config.data.newPassword) {
+        config.data.newPassword = md5(config.data.newPassword);
+      }
+      
       config.data = Qs.stringify({
         ...config.data,
         userPhone: utils.getLocalStorage('phone') || '',
@@ -73,13 +80,16 @@ export let getIndexGoods = (data) => {
   return axios.get(`/goods/indexList?sort=${data.sort}`);
 }
 export let getGoodsClass = () => {
-  return axios.get(`/goods/getGoodsClass`);
+  return axios.get('/goods/getGoodsClass');
 }
 export let getIndexImg = () => {
   return axios.get('/index/swiper');
 }
 export let editPersonalInfo = (data) => {
   return axios.post('/user/editInfo', data);
+}
+export let changePwd = (data) => {
+  return axios.post('/user/changePwd', data);
 }
 export let uploadGoods = (data) => {
   return axios2.post('/goods/upload', data);
@@ -120,14 +130,37 @@ export let getShop = (data) => {
 export let editShopSubmit = (data) => {
   return axios.post('/user/editShopSubmit', data);
 }
+export let orderCommit = (data) => {
+  return axios.post('/user/orderCommit', data);
+}
+export let orderStatus = (data) => {
+  return axios.post('/user/orderStatus', data);
+}
+export let getCityList = (data) => {
+  return axios.get('/user/cityList' + getQueryString(data));
+}
+export let orderPay = (data) => {
+  return axios.post('/order/pay', data);
+}
+export let orderCancel = (data) => {
+  return axios.post('/order/cancel', data);
+}
+export let getPersonalOrder = (data) => {
+  return axios.post('/order/personalOrder', data);
+}
+
+
+
+
 
 function getQueryString(data){
   let str = '?';
-  Object.keys(data).forEach(item => {
-    str += item;
-    str += '=';
-    str += data[item];
-    str += '&';
+  Object.keys(data).forEach((item, index) => {
+    if(index== 0){
+      str += (item + '=' + data[item]);
+    }else{
+      str += ('&' + item + '=' + data[item]);
+    }
   });
   return str;
 }

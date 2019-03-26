@@ -32,8 +32,8 @@
           </el-col>
         </el-row>
         <el-row class="text_left">
-          <el-button @click="showEdit" size="medium">编辑</el-button>
-          <el-button @click="showEdit" size="medium">修改密码</el-button>
+          <el-button @click="showEdit($event, 'info')" size="medium">编辑</el-button>
+          <el-button @click="showEdit($event, 'pwd')" size="medium">修改密码</el-button>
         </el-row>
       </el-tab-pane>
       <el-tab-pane name="goods" label="我的商品">
@@ -139,6 +139,9 @@
               <el-button plain
                 type="danger"
                 @click="handleEditShop">编辑</el-button>
+              <el-button plain
+                type="success"
+                @click="$router.push('/settlement')">去结算</el-button>
             </el-col>
             <el-col :span="15" class="text-right" v-if="editShop">
               <el-button plain
@@ -149,6 +152,26 @@
             </el-col>
           </el-row>
         </el-row>
+      </el-tab-pane>
+      <el-tab-pane name="order" label="我的订单">
+        <el-table key="orderTable"
+          ref="orderTable"
+          :data="myOrders"
+          style="width: 100%">
+          <el-table-column prop="id" :formatter="timeFormatter" label="时间" width="180">
+          </el-table-column>
+          <el-table-column align="center" :formatter="priceFormatter" prop="amount" label="金额"  width="180">
+          </el-table-column>
+          <el-table-column align="center" :formatter="statusFormatter" prop="status" label="状态" width="180">
+          </el-table-column>
+          <el-table-column label="操作" align="center" width="400">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                @click="$router.push('/order?id=' + scope.row.id)">查看</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </el-tab-pane>
     </el-tabs>
     <el-dialog
@@ -166,6 +189,23 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="commitEdit">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      title="修改密码"
+      :visible.sync="pwdDialogVisible"
+      width="40%">
+      <el-form label-width="80px" :model="userForm">
+        <el-form-item label="旧密码">
+          <el-input type="password" v-model="userForm.oldPassword"></el-input>
+        </el-form-item>
+        <el-form-item label="新密码">
+          <el-input type="password" v-model="userForm.newPassword"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="pwdDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="commitPwd">确 定</el-button>
       </span>
     </el-dialog>
     <el-dialog
@@ -188,10 +228,11 @@
 <script>
 import { baseUrl } from "../lib/config.js";
 import utils from '../lib/utils.js';
-import { editShopSubmit, getShop, deleteGoods, collect, editPersonalInfo, getCollect, getPersonalGoods, getGoodsClass } from "../api/api.js";
+import { getPersonalOrder, changePwd, editShopSubmit, getShop, deleteGoods, collect, editPersonalInfo, getCollect, getPersonalGoods, getGoodsClass } from "../api/api.js";
 export default {
   data() {
     return {
+      pwdDialogVisible: false,
       activeTab: 'info',
       //user:{},
       uploadData:{
@@ -221,7 +262,8 @@ export default {
       },
       shopList: [],
       editShop: false,
-      backupShopList:[]
+      backupShopList:[],
+      myOrders: []
     };
   },
   created(){
@@ -233,6 +275,13 @@ export default {
     this.getShop();
   },
   methods: {
+    getPersonalOrder(){
+      let that = this;
+      getPersonalOrder({userPhone: this.$store.state.user.phone}).then(res => {
+        if(res.code != 0) return that.$message.error(res.msg);
+        that.myOrders = res.data;
+      });
+    },
     getSubmitShopList(){
       let list = [];
       this.backupShopList.forEach(item => {
@@ -270,10 +319,42 @@ export default {
     },
     colSumFormatter(row, column, cellValue, index){
       return '￥' + (row.price * row.shopCount).toFixed(2);
-      console.log(row);
     },
     priceFormatter(row, column, cellValue, index){
       return '￥' + Number(cellValue).toFixed(2);
+    },
+    timeFormatter(row, column, cellValue, index){
+      return String(new Date(Number(cellValue)).format());
+    },
+    statusFormatter(row, column, cellValue, index){
+      let str = '';
+      switch(cellValue){
+        case '-1':
+          str = '已取消';
+          break;
+        case '0':
+          str = '已支付';
+          break;
+        case '1':
+          str = '已完成';
+          break;
+        case '2':
+          str = '待支付';
+          break;
+        case -1:
+          str = '已取消';
+          break;
+        case 0:
+          str = '已支付';
+          break;
+        case 1:
+          str = '已完成';
+          break;
+        case 2:
+          str = '待支付';
+          break;
+      }
+      return str;
     },
     changeDelDialogVisible(){
       this.delDialogVisible = !this.delDialogVisible;
@@ -363,6 +444,9 @@ export default {
         case '3':
           that.getShop();
           break;
+        case '4':
+          that.getPersonalOrder();
+          break;
       }
     },
     getShop(){
@@ -412,10 +496,25 @@ export default {
         this.$message.success(res.msg);
       }
     },
-    showEdit(){
-      this.dialogVisible = true;
-      this.userForm.formName = this.user.nick_name;
-      this.userForm.formPhone = this.user.phone;
+    showEdit(e, tag){
+      if(tag == 'info'){
+        this.dialogVisible = true;
+        this.userForm.formName = this.user.nick_name;
+        this.userForm.formPhone = this.user.phone;
+      }else{
+        this.pwdDialogVisible = true;
+      }
+    },
+    commitPwd(){
+      let that = this;
+      changePwd({
+        userPhone: this.user.phone,
+        oldPassword: this.userForm.oldPassword,
+        newPassword: this.userForm.newPassword
+      }).then(res => {
+        that.$message(res.msg);
+        that.pwdDialogVisible = false;
+      });
     },
     commitEdit(){
       let that = this;
@@ -424,7 +523,6 @@ export default {
         phone: this.userForm.formPhone
       }).then(res => {
         if(res.code == 0){
-          that.user = res.data;
           that.$store.commit('setUser', res.data)
           that.dialogVisible = false
         }

@@ -32,7 +32,7 @@ export default new Router({
     },
     {
       path: "/index",
-      name: "index",
+      name: "home",
       component: () => import('./views/index.vue'),
       meta:{
         title:'首页'
@@ -68,6 +68,14 @@ export default new Router({
       component: () => import('./views/detail.vue'),
       meta:{
         title:'详情'
+      }
+    },
+    {
+      path: "/settlement",
+      name: "settlement",
+      component: () => import('./views/settlement.vue'),
+      meta:{
+        title:'结算'
       }
     },
   ]

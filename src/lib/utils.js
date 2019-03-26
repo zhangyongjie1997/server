@@ -2,20 +2,26 @@ const fs = require('fs')
 const path = require('path')
 
 
-Date.prototype.format = function (fmt) {
-  let o = {
-    "M+": this.getMonth() + 1, //月份
-    "d+": this.getDate(), //日
-    "h+": this.getHours(), //小时
-    "m+": this.getMinutes(), //分
-    "s+": this.getSeconds(), //秒
-    "q+": Math.floor((this.getMonth() + 3) / 3), //季度
-    "S": this.getMilliseconds() //毫秒
-  };
-  if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-  for (let k in o)
-    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-  return fmt;
+Date.prototype.format = function (format) {
+  format = format || "yyyy-MM-dd hh:mm:ss";
+    let list = {
+      "y+": String(this.getFullYear()), //年
+      "M+": String(this.getMonth() + 1), //月份 
+      "d+": String(this.getDate()), //日 
+      "h+": String(this.getHours()), //小时 
+      "m+": String(this.getMinutes()), //分 
+      "s+": String(this.getSeconds()), //秒 
+      "q+": String(Math.floor((this.getMonth() + 3) / 3)), //季度 
+      "S": String(this.getMilliseconds()) //毫秒 
+    };
+    Object.keys(list).map(function (key) {
+      let reg = new RegExp("(" + key + ")", 'g');
+      format = format.replace(reg, function (fmt) {
+        if (/y+/.test(fmt)) return list[key].substr(4 - fmt.length);
+        return fmt.length == 1 ? list[key] : ("00" + list[key]).substr(list[key].length);
+      });
+    })
+    return format;
 }
 
 class Utils {
@@ -61,9 +67,9 @@ class Utils {
       let result = await this.dir_exist_create(target_path);
       if(result.code == 0){
         const src = fs.createReadStream(tmp_path);
-        const dest = fs.createWriteStream(target_path + '/' + decodeURIComponent(file_name));
+        const dest = fs.createWriteStream(path.resolve('..', target_path + '/' + decodeURIComponent(file_name)));
         const a = src.pipe(dest);
-        src.on('end', function() { resolve({code: 0, path: a.path}) });
+        src.on('end', function() { resolve({code: 0, path: a.path.replace('/usr/local/src/server/uploads', '/static').replace('//', '/')}) });
         src.on('error', function(err) { resolve({code: -1,err})});
       }else{
         resolve({code:-1, err: result.err});
@@ -75,13 +81,13 @@ class Utils {
       fs.readFile(path.resolve('./', targetPath), (err, data) => {
         if(err) return resolve({code: -1, err: err});
         resolve({code: 0, data: JSON.parse(data.toString())});
-      })
-    })
+      });
+    });
   }
   getDirInfo(targetPath){
     return new Promise((resolve, reject) => {
       const info = fs.readdirSync(path.resolve('./', targetPath));
-      resolve({code: 0, data: info})
+      resolve({code: 0, data: info});
     })
   }
   sendError(res, err){
@@ -96,12 +102,20 @@ class Utils {
     }
     return new Date(mydate).getTime();
   }
+  static getTimestamp(data){
+    if(!data) return new Date().getTime();
+    let mydate = data;
+    if(data.replace){
+      mydate = data.replace(/-/g, '/');
+    }
+    return new Date(mydate).getTime();
+  }
   promiseify(callback){
     return new Promise(callback(resolve, reject));
   }
   formatDate(date = new Date(), format) {
     format = format || "yyyy-MM-dd hh:mm:ss";
-    var list = {
+    let list = {
       "y+": String(date.getFullYear()), //年
       "M+": String(date.getMonth() + 1), //月份 
       "d+": String(date.getDate()), //日 
@@ -113,7 +127,7 @@ class Utils {
   
     };
     Object.keys(list).map(function (key) {
-      var reg = new RegExp("(" + key + ")", 'g');
+      let reg = new RegExp("(" + key + ")", 'g');
       format = format.replace(reg, function (fmt) {
         if (/y+/.test(fmt)) return list[key].substr(4 - fmt.length);
         return fmt.length == 1 ? list[key] : ("00" + list[key]).substr(list[key].length);
@@ -152,7 +166,6 @@ class Utils {
             obj[key];
       }
     }
-  
     function arrayCopy(arr) {
       let resArr = [];
       arr.forEach(element => {
@@ -161,6 +174,17 @@ class Utils {
       return resArr;
     }
     return data;
+  }
+  static getQueryString(data){
+    let str = '?';
+    Object.keys(data).forEach((item, index) => {
+      if(index== 0){
+        str += (item + '=' + data[item]);
+      }else{
+        str += ('&' + item + '=' + data[item]);
+      }
+    });
+    return str;
   }
   
 }

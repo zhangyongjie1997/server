@@ -13,8 +13,8 @@ const app = express()
 const numCPUs = require('os').cpus().length
 
 const httpsOptions = {
-  key: fs.readFileSync(path.resolve(__dirname, '../https/private.pem'), 'utf8'),
-  cert: fs.readFileSync(path.resolve(__dirname, '../https/file.crt'), 'utf8')
+  key: fs.readFileSync(path.resolve(__dirname, '../https/cert.key'), 'utf8'),
+  cert: fs.readFileSync(path.resolve(__dirname, '../https/cert.pem'), 'utf8')
 }
 
 const httpsServer = https.createServer(httpsOptions, app)

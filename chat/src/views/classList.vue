@@ -56,7 +56,8 @@ export default {
         list3: [],
         list4: [],
         list5: [],
-      }
+      },
+      timer: null
     };
   },
   components:{
@@ -70,6 +71,10 @@ export default {
       }
       that.getClassList();
     });
+  },
+  beforeRouteLeave(to, from, next){
+    clearTimeout(this.timer);
+    next();
   },
   methods: {
     changeClass(e, classId){
@@ -133,7 +138,7 @@ export default {
               if(item.offsetHeight < minHeight) minHeight = item.offsetHeight, minIndex = idx + 1;
             });
             that.lists['list' + minIndex].push(slice2.shift());
-            setTimeout(()=>{
+            that.timer = setTimeout(()=>{
               that.$nextTick(() => {
                 next();
               });

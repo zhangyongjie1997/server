@@ -21,4 +21,10 @@ module.exports = {
     path: 'mongodb://localhost/test'
   },
   uploadPath: 'public/uploads/',
+  orderStatus: {
+    fail: -1, //已取消或者未支付导致订单关闭
+    open: 0, //已支付
+    close: 1, //已完成
+    wait: 2, //待支付
+  }
 }

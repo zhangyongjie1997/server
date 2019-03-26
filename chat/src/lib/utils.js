@@ -1,4 +1,4 @@
-export default {
+const utils = {
   setLocalStorage(name, value){
     localStorage.setItem('chat' + name, value instanceof Object ? JSON.stringify(value) : value);
   },
@@ -38,3 +38,4 @@ export default {
     return data;
   }
 }
+export default utils;
