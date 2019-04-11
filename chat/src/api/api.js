@@ -2,7 +2,7 @@ const axios = require('axios')
 const Qs = require('qs')
 import md5 from '../lib/md5.js'
 import utils from '../lib/utils'
-import ElementUI from "element-ui"
+import ElementUI from 'element-ui'
 import axios2 from './instance'
 import router  from '../router'
 

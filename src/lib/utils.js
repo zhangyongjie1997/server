@@ -168,8 +168,8 @@ class Utils {
     }
     function arrayCopy(arr) {
       let resArr = [];
-      arr.forEach(element => {
-        resArr.push(that.deepCopy(element));
+      Object.keys(arr).forEach(element => {
+        resArr[element] = arr[element]
       });
       return resArr;
     }
