@@ -124,7 +124,7 @@ class UserController extends Utils{
   }
   async getUserByPhone(req, res){
     let userInfo = await user.findUserByPhone(req.body.userPhone);
-    if(userInfo.length == 0) return resolve({code: -1, msg: '用户不存在', err: {message: '用户不存在'}});
+    if(userInfo.length == 0) return this.sendError({res, err: {message: '用户不存在'}});
     res.send({code: 0, data: userInfo[0], msg: '获取成功'}).end();
   }
   async addShop(req, res){

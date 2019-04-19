@@ -9,7 +9,7 @@ const async = require('async')
 
 const ali = new Alipay({
   appId: '2016092600599391',
-  notifyUrl: 'http://39.107.88.223/api/pay/callback',
+  notifyUrl: 'http://zyjbiubiu.cn/api/pay/callback',
   rsaPrivate: path.resolve(__dirname, '../../https/pay_private.pem'),
   rsaPublic: path.resolve(__dirname, '../../https/pay_public.pem'),
   sandbox: true,

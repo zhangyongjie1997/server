@@ -21,8 +21,8 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Untitled",
-      "program": "${workspaceFolder}\\Untitled-4.js",
+      "name": "test",
+      "program": "${workspaceFolder}\\test.js",
       
     }
   ]

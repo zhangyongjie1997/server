@@ -29,24 +29,31 @@ const shopSchema = new Schema({
   }
 });
 
+
 const commentSchema = new Schema({
   id: {
     type: String,
+    require: true,
+  },
+  content: {
+    type: String,
+  },
+  time: {
+    type: String
+  },
+  author: {
+    type: Object,
     require: true
-  }
-});
+  },
+  goods: {
+    type: String
+  },
+  child_comment: []
+})
 
 const Shop = mongoose.model('shop', shopSchema);
 const Comment = mongoose.model('comment', commentSchema);
 
-// class Schema{
-//   constructor(obj){
-//     this.obj = obj;
-//   }
-//   model(){
-//     return mongoose.model();
-//   }
-// }
 
 exports.Shop = Shop;
 exports.Comment = Comment;
