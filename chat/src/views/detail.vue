@@ -35,7 +35,7 @@
           <el-input-number size="mini" v-model="goodsNum" :min="1" :max="3" label="描述文字"></el-input-number>
         </div>
         <div v-if="!mineGoods" class="btn_container text-left">
-          <el-button size="medium" type="danger">立即购买</el-button>
+          <el-button @click="buyNow" size="medium" type="danger">立即购买</el-button>
           <el-button @click="addShop" size="medium" type="warning">加入购物车</el-button>
           <p v-if="hadShop">您的购物车中已存在该商品。</p>
         </div>
@@ -45,13 +45,26 @@
         </div>
       </div>
     </div>
+    <el-row class="add_comment_container">
+      <div class="add_comment_inner_container">
+        <div style="position: relative;">
+          <div @blur="commentBlur" @focus="commentFocus" @input="comment_change" contenteditable="true" tabindex="0" class="add_comment"></div>
+          <div v-if="comment.length < 1" class="placeholder">写下你的评论...</div>
+        </div>
+        <div class="submit_comment" :class="{disable: comment.length < 1}">
+          提交
+        </div>
+      </div>
+    </el-row>
     <el-row>
-      <span class="comment_btn pointer">获取评论</span>
+      <span v-if="!showComment" @click="getComment" class="comment_btn pointer">获取评论</span>
+      <span v-if="showComment && comments.length == 0" class="comment_empty pointer">暂无评论</span>
     </el-row>
     <div>当前商品{{JSON.stringify(goods)}}</div>
   </div>
 </template>
 <script>
+import * as $ from 'jquery'
 import goTop from '../components/goTop.vue';
 import { shopHadGoods, addShop, getOneGoods, collect, judgeCollect, getUserByPhone } from '../api/api.js'
 export default {
@@ -61,21 +74,47 @@ export default {
       goodsUser: {},
       collectText: '收藏',
       goodsNum: 1,
-      hadShop: 0
+      hadShop: 0,
+      comments: [],
+      showComment: false,
+      comment: '',
+      atComment: false,
+      focus: false
     };
   },
   created(){
     let id = this.$route.query.id;
     this.getGoods(id);
   },
-  mounted(){},
   components: {goTop},
-  computed:{
+  computed: {
     mineGoods(){
       return this.$store.state.user.phone == this.goods.phone;
     }
   },
   methods:{
+    commentFocus(e){
+      $('.add_comment').animate({width: '-=100px'}, 100);
+      $('.submit_comment').addClass('active');
+    },
+    commentBlur(){
+      $('.add_comment').animate({width: '100%'}, 100);
+      $('.submit_comment').removeClass('active');
+    },
+    comment_change(e){
+      this.comment = e.target.textContent;
+    },
+    getComment(){
+      this.showComment = true;
+    },
+    buyNow(){
+      let that = this;
+      addShop({userPhone: this.$store.state.user.phone, id: this.goods.id, count: 1})
+        .then(res => {
+          if(res.code == 0) that.hadShop = res.data.had;
+          that.$router.push('/settlement');
+        });
+    },
     shopHadGoods(){
       let that = this;
       shopHadGoods({userPhone: this.$store.state.user.phone, id: this.goods.id})
@@ -89,7 +128,7 @@ export default {
       addShop({userPhone: this.$store.state.user.phone, id: this.goods.id, count: this.goodsNum})
         .then(res => {
           that.$message(res.msg);
-          if(res.code == 0) that.shopHadGoods();
+          if(res.code == 0) that.hadShop = res.data.had;
         });
     },
     getGoods(id){
@@ -131,6 +170,69 @@ export default {
 };
 </script>
 <style scoped>
+.submit_comment{
+  position: absolute;
+  right: 0;
+  top: 50%;
+  margin-top: -18px;
+  line-height: 36px;
+  padding: 0 16px;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  border-radius: 3px;
+  transform: scale(0);
+  transition: all .2s ease-in-out;
+  cursor: pointer;
+}
+.submit_comment:hover{
+  background-color: #000;
+}
+.submit_comment.active{
+  transform: scale(1);
+}
+.placeholder{
+  position: absolute;
+  pointer-events: none;
+  color: #8590a6;
+  white-space: pre-wrap;
+  top: 8px;
+  left: 14px;
+}
+.add_comment_container{
+  padding: 12px 20px;
+  box-shadow: 0 1px 3px rgba(26,26,26,.1);
+  margin: 20px auto 0;
+  width: 80%;
+  background-color: #fff;
+}
+.add_comment_inner_container{
+  position: relative;
+  min-width: 198px;
+}
+.add_comment{
+  position: relative;
+  box-sizing: border-box;
+  outline: none;
+  cursor: text;
+  border-radius: 3px;
+  border: 1px solid #ebebeb;
+  transition: all .1s ease-in-out;
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: left;
+  padding: 6px 12px;
+  background-color: #f6f6f6;
+  width: 100%;
+}
+.add_comment:focus{
+  background-color: #fff;
+  border: 1px solid #8590a6;
+}
+.comment_empty{
+  line-height: 2em;
+  font-size: 32px;
+  color: #989898;
+}
 .main{
   background-color: whitesmoke;
 }

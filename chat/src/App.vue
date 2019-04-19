@@ -153,4 +153,7 @@ input:-webkit-autofill {
 .color_danger{
   color: #f56c6c;
 }
+.disable{
+  pointer-events: none;
+}
 </style>

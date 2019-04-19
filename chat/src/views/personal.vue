@@ -328,29 +328,17 @@ export default {
     },
     statusFormatter(row, column, cellValue, index){
       let str = '';
-      switch(cellValue){
-        case '-1':
+      switch(true){
+        case cellValue == '-1':
           str = '已取消';
           break;
-        case '0':
+        case cellValue == '0':
           str = '已支付';
           break;
-        case '1':
+        case cellValue == '1':
           str = '已完成';
           break;
-        case '2':
-          str = '待支付';
-          break;
-        case -1:
-          str = '已取消';
-          break;
-        case 0:
-          str = '已支付';
-          break;
-        case 1:
-          str = '已完成';
-          break;
-        case 2:
+        case cellValue == '2':
           str = '待支付';
           break;
       }
