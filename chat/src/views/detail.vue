@@ -83,7 +83,7 @@
         </div>
       </div>
     </div>
-    <el-row class="add_comment_container">
+    <el-row class="add_comment_container" v-if="isLogin">
       <div class="add_comment_inner_container">
         <div style="position: relative;">
           <div
