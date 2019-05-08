@@ -10,11 +10,10 @@ module.exports = {
   },
   verify(req, res, next, callback){
     let urlJudge = judgeUrl(req.url);
-    console.log(urlJudge);
     if(urlJudge) return next();
     let token = req.body.token;
     jwt.verify(token, secret, (err, decoded) => {
-      console.log(err, decoded);
+      if(err) console.log('JWT ERROR:', err);
       if(err || !decoded) return res.end(JSON.stringify({code: 4011, data:{}, msg: err.JsonWebTokenError}))
       next();
       if(callback && typeof callback == 'function') return callback();
@@ -38,6 +37,8 @@ function judgeUrl(url){
     '/goods/upload',
     '/pay/callback',
     '/user/cityList',
+    '/user/getComment0',
+    '/user/getComment1'
   ]
   return urlList.some(item => url.indexOf(item) != -1);
 }

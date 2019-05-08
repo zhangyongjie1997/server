@@ -2,7 +2,9 @@ const mongoConfig = require('../lib/config').mongoConfig
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
-mongoose.connect(mongoConfig.path, {useNewUrlParser: true}, (err, db) => {})
+mongoose.connect(mongoConfig.path, {useNewUrlParser: true}, (err, db) => {
+  console.log(db)
+})
 
 /* 链接成功 */
 mongoose.connection.on('connected', function() {
@@ -16,6 +18,7 @@ mongoose.connection.on('error', function(err) {
 
 // 链接断开
 mongoose.connection.on('disconnected', function() {
+  console.log(arguments)
   console.log('Mongoose connection disconnected');
 });
 

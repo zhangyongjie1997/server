@@ -1,12 +1,5 @@
 module.exports = {
   secret: 'chat',
-  dbConfig: {
-    host: 'localhost',
-    user: 'zhangyongjie',
-    password: 'Zyj19970716',
-    database: 'test',
-    port: '3306',
-  },
   // dbConfig: {
   //   host: 'localhost',
   //   user: 'root',
@@ -14,8 +7,21 @@ module.exports = {
   //   database: 'test',
   //   port: '3306',
   // },
-  mongoConfig: {
+  // mongoConfig: {
+  //   host: '//39.107.88.223',
+  //   port: '21710',
+  //   datebase: 'test',
+  //   path: 'mongodb://39.107.88.223/test'
+  // },
+  dbConfig: {
     host: 'localhost',
+    user: 'zhangyongjie',
+    password: 'Zyj19970716',
+    database: 'test',
+    port: '3306',
+  },
+  mongoConfig: {
+    host: '//127.0.0.1',
     port: '21710',
     datebase: 'test',
     path: 'mongodb://localhost/test'

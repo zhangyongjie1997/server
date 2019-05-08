@@ -148,6 +148,12 @@ export let orderCancel = (data) => {
 export let getPersonalOrder = (data) => {
   return axios.post('/order/personalOrder', data);
 }
+export let createComment = (data) => {
+  return axios.post('/user/comment/create', data);
+}
+export let getComment0 = (data) => {
+  return axios.post('/user/getComment0', data);
+}
 
 
 

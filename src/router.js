@@ -23,7 +23,7 @@ router.options('*', (req, res, next) => {
 router.all('*', (req, res, next) => {
   let data = req.body;
   req.url = req.url.replace('/api', '');
-  console.log('请求参数:'+ JSON.stringify(data)+',请求路径:' + req.url);
+  console.log(',请求路径:' + req.url + '请求参数:'+ JSON.stringify(data));
   if(req.headers.host.indexOf('localhost') > -1 || req.headers.host.indexOf('127.0.0.1') > -1){
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With");
@@ -96,6 +96,10 @@ router.post('/order/cancel', orderController.orderCancel.bind(orderController));
 router.post('/order/personalOrder', orderController.personalOrder.bind(orderController));
 //获取订单状态
 router.post('/user/orderStatus', orderController.getOrderStatus.bind(orderController));
+//添加评论
+router.post('/user/comment/create', userController.createComment.bind(userController));
+//获取顶层评论
+router.post('/user/getComment0', userController.getComment_layer0.bind(userController));
 //dbtest
 router.all('/mongo', goodsController.dbtest.bind(goodsController));
 //获取城市列表
