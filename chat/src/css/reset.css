@@ -14,6 +14,10 @@ ul, li{
   list-style: none;
 }
 
+.hide{
+  display: none;
+}
+
 .flex {
   display: flex;
   justify-content: space-between;

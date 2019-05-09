@@ -18,3 +18,6 @@ CREATE TABLE "goods" (
   "phone" CHAR(11),
   FOREIGN KEY ("phone") REFERENCES "user"("phone")
 )
+insert into comment_path (ancestor, descendant, depth) 
+select cp.ancestor, 10, cp.depth+1 from comment_path as cp 
+where cp.descendant=6 union all select 10, 10, 0;

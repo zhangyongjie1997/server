@@ -38,7 +38,9 @@ function judgeUrl(url){
     '/pay/callback',
     '/user/cityList',
     '/user/getComment0',
-    '/user/getComment1'
+    '/user/getComment1',
+    '/user/getComment',
+    
   ]
   return urlList.some(item => url.indexOf(item) != -1);
 }

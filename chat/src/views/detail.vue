@@ -2,46 +2,25 @@
   <div class="main">
     <go-top></go-top>
     <el-row style="font-size:0;">
-      <img
-        src="../assets/benner.jpg"
-        width="100%"
-      >
+      <img src="../assets/benner.jpg" width="100%">
     </el-row>
     <div class="userInfo_container">
       <div class="userInfo">
-        <img
-          :src="goodsUser.avatar"
-          class="avatar"
-          width="70px"
-          height="70px"
-        >
+        <img :src="goodsUser.avatar" class="avatar" width="70px" height="70px">
         <span class="nick_name">{{goodsUser.nick_name}}</span>
       </div>
-      <el-button
-        class="fr"
-        @click="$router.go(-1)"
-      >返回</el-button>
+      <el-button class="fr" @click="$router.go(-1)">返回</el-button>
     </div>
     <div class="content_container">
       <div class="left">
         <div class="cover">
-          <img
-            :src="goods.cover"
-            height="100%"
-            width="100%"
-          >
+          <img :src="goods.cover" height="100%" width="100%">
         </div>
         <el-row class="collect_container">
           <el-col :span="6">
-            <el-button
-              plain
-              @click="collect($event, goods.id)"
-            >{{collectText}}</el-button>
+            <el-button plain @click="collect($event, goods.id)">{{collectText}}</el-button>
           </el-col>
-          <el-col
-            :span="14"
-            style="height:100%;margin-left:30px;"
-          >
+          <el-col :span="14" style="height:100%;margin-left:30px;">
             <p style="font-size:16px;color:#000;">喜欢这件商品吗？</p>
             <p style="font-size:14px;color:#aaa;">喜欢就将它添加到您的收藏夹吧！</p>
           </el-col>
@@ -53,28 +32,11 @@
         <p class="pack_info text-left">今天下单于2019-04-04日前发货</p>
         <div class="num text-left">
           数量：
-          <el-input-number
-            size="mini"
-            v-model="goodsNum"
-            :min="1"
-            :max="3"
-            label="描述文字"
-          ></el-input-number>
+          <el-input-number size="mini" v-model="goodsNum" :min="1" :max="3" label="描述文字"></el-input-number>
         </div>
-        <div
-          v-if="!mineGoods"
-          class="btn_container text-left"
-        >
-          <el-button
-            @click="buyNow"
-            size="medium"
-            type="danger"
-          >立即购买</el-button>
-          <el-button
-            @click="addShop"
-            size="medium"
-            type="warning"
-          >加入购物车</el-button>
+        <div v-if="!mineGoods" class="btn_container text-left">
+          <el-button @click="buyNow" size="medium" type="danger">立即购买</el-button>
+          <el-button @click="addShop" size="medium" type="warning">加入购物车</el-button>
           <p v-if="hadShop">您的购物车中已存在该商品。</p>
         </div>
         <div class="discribe text-left">
@@ -86,137 +48,69 @@
     <el-row class="add_comment_container" v-if="isLogin">
       <div class="add_comment_inner_container">
         <div style="position: relative;">
-          <div
-            @blur="commentBlur"
-            @focus="commentFocus"
-            @input="comment_change"
-            contenteditable="true"
-            tabindex="0"
-            class="add_comment"
-          ></div>
-          <div
-            v-if="comment.length < 1"
-            class="placeholder"
-          >写下你的评论...</div>
+          <div @blur="commentBlur" @focus="commentFocus" @input="comment_change" contenteditable="true" tabindex="0" class="add_comment"></div>
+          <div v-if="comment.length < 1" class="placeholder">写下你的评论...</div>
         </div>
-        <div
-          @click="createComment"
-          class="submit_comment"
-        >
+        <div @click="createComment" class="submit_comment">
           提交
         </div>
       </div>
     </el-row>
     <el-row>
-      <span
-        v-if="!showComment"
-        @click="getComment"
-        class="comment_btn pointer"
-      >获取评论</span>
-      <span
-        v-if="showComment && commentList.length == 0"
-        class="comment_empty pointer"
-      >暂无评论</span>
+      <span v-if="!showComment" @click="getCommentBtn" class="comment_btn pointer">获取评论</span>
+      <span v-if="showComment && commentList.length == 0" class="comment_empty pointer">暂无评论</span>
     </el-row>
-    <div
-      v-if="showComment"
-      class="comment_container"
-    >
+    <div v-if="showComment && commentList.length > 0" class="comment_container">
       <el-row class="comment_title">
         <span>{{commentList.length}}条评论</span>
       </el-row>
       <el-row class="comment_list_container">
-        <div v-for="item in commentList" :key="item" class="comment_item_container">
-          <el-row
-            :gutter="20"
-            class="comment_item_title"
-          >
+        <div v-for="(item, index) in commentList" :key="item.id" class="comment_item_container">
+          <el-row :gutter="20" class="comment_item_title">
             <el-col :span="1">
-              <img
-                class="comment_avatar pointer"
-                :src="item.avatar"
-              >
+              <img class="comment_avatar pointer" :src="item.avatar">
             </el-col>
-            <el-col
-              :offset="0"
-              :span="3"
-              class="comment_item_name pointer"
-            >{{item.nick_name}}</el-col>
-            <el-col
-              class="comment_item_time text_right"
-              :offset="14"
-              :span="6"
-            >{{item.time}}</el-col>
+            <el-col :offset="0" :span="3" class="comment_item_name pointer">{{item.nick_name}}</el-col>
+            <el-col class="comment_item_time text_right" :offset="14" :span="6">{{item.id | dateFormatter}}</el-col>
           </el-row>
           <el-row>
-            <el-col
-              class="text_left comment_item_content"
-              :offset="1"
-              :span="23"
-            >
-              {{item.nick_name}}: {{item.content}}
+            <el-col class="text_left comment_item_content" :offset="1" :span="23">
+              {{item.content}}
             </el-col>
-            <el-col
-              v-if="item.childComment"
-              class="text_left subcomment_container"
-              :offset="1"
-              :span="23"
-            >
-              <div class="subcomment_item_container">
-                <el-row>
-                  <el-col :span="1">
-                    <img
-                      class="subcomment_avatar pointer"
-                      :src="goodsUser.avatar"
-                    >
-                  </el-col>
-                  <el-col :span="6">
-                    <span class="pointer">xx</span>
-                    <span style="margin: 0 5px;color: #666;">回复</span>
-                    <span class="pointer">{{goodsUser.nick_name}}</span>
-                  </el-col>
-                  <el-col
-                    :offset="11"
-                    :span="6"
-                    class="comment_item_time text_right"
-                  >{{goods.time}}</el-col>
-                </el-row>
-                <el-row>
-                  <el-col
-                    class="text_left subcomment_item_content"
-                    :offset="1"
-                    :span="23"
-                  >
-                    南笙北执： 1.Tiktok（抖音国际版） 【软件介绍】：抖音短视频在国外叫做“Tik Tok” Tik Tok 是一款专注于音乐创意的影片App，更是年轻人交友的有趣社群 在这里每个人都可以拍出真正属于自
-                  </el-col>
-                </el-row>
+            <el-col ref="huifuBtn" :span="23" :offset="1" class="text_right comment_huifu_btn">
+              <span @click="clickSuphuifu($event, index)">回复</span>
+            </el-col>
+            <el-col ref="suphuifu" :span="23" class="huifu_container hide" :offset="1">
+              <input ref="suphuifuContent" type="text" placeholder="请输入评论。。。" class="huifu_container_inner">
+              <div class="text_right">
+                <span class="suphuifuSubmit" @click="suphuifuSubmit($event, index, item.id)">回复</span>
               </div>
-              <div class="subcomment_item_container">
+            </el-col>
+            <el-col v-if="item.childComment" class="text_left subcomment_container" :offset="1" :span="23">
+              <div v-for="(item2, index2) in item.childComment" :key="index2" class="subcomment_item_container">
                 <el-row>
                   <el-col :span="1">
-                    <img
-                      class="subcomment_avatar pointer"
-                      :src="goodsUser.avatar"
-                    >
+                    <img class="subcomment_avatar pointer" :src="item2.avatar">
                   </el-col>
                   <el-col :span="6">
-                    <span class="pointer">xx</span>
-                    <span style="margin: 0 5px;color: #666;">回复</span>
-                    <span class="pointer">{{goodsUser.nick_name}}</span>
+                    <span class="pointer comment_item_name">{{item2.nick_name}}</span>
+                    <span style="margin: 0 5px;color: #027fff;">回复</span>
+                    <span class="pointer comment_item_name">{{item2.parent ? item2.parent.nick_name : item.nick_name}}</span>
                   </el-col>
-                  <el-col
-                    :offset="11"
-                    :span="6"
-                    class="comment_item_time text_right"
-                  >{{goods.time}}</el-col>
+                  <el-col :offset="11" :span="6" class="comment_item_time text_right">{{item2.id | dateFormatter}}</el-col>
                 </el-row>
                 <el-row>
-                  <el-col
-                    class="text_left subcomment_item_content"
-                    :offset="1"
-                    :span="23"
-                  >
-                    南笙北执： 1.Tiktok（抖音国际版） 【软件介绍】：抖音短视频在国外叫做“Tik Tok” Tik Tok 是一款专注于音乐创意的影片App，更是年轻人交友的有趣社群 在这里每个人都可以拍出真正属于自
+                  <el-col class="text_left subcomment_item_content" :offset="1" :span="23">
+                    {{item2.content}}
+                  </el-col>
+                  <el-col ref="subhuifuBtn" :span="23" :offset="1" class="text_right subcomment_huifu_btn">
+                    <span @click="clickSubhuifu($event, index2)">回复</span>
+                  </el-col>
+                  <el-col ref="subhuifu" :span="23" class="huifu_container hide" :offset="1">
+                    <input ref="subhuifuContent" type="text" placeholder="请输入评论。。。" class="huifu_container_inner">
+                    <div class="text_right">
+                      <span class="suphuifuSubmit" @click="subhuifuSubmit($event, index2, item2.id)">回复</span>
+                    </div>
                   </el-col>
                 </el-row>
               </div>
@@ -239,7 +133,9 @@ import {
   getOneGoods,
   collect,
   judgeCollect,
-  getUserByPhone
+  getUserByPhone,
+  replay0,
+  getComment
 } from "../api/api.js";
 export default {
   data() {
@@ -262,16 +158,65 @@ export default {
     window.addEventListener("visibilitychange", this.visibilitychange);
     this.getGoods(this.goodsId);
   },
-  beforeRouteLeave() {
-    window.removeEventListener("visibilitychange", this.visibilitychange);
-  },
-  components: { goTop },
-  computed: {
-    mineGoods() {
-      return this.$store.state.user.phone == this.goods.phone;
-    }
-  },
   methods: {
+    subhuifuSubmit(e, index, id){
+      let content = this.$refs['subhuifuContent'][index].value, that = this;
+      if(content.length == 0) return this.$message.warning('回复不能为空');
+      replay0({
+        content: content,
+        goodsId: this.goodsId,
+        userPhone: this.$store.state.user.phone,
+        parentCommentId: id,
+      }).then(res => {
+        that.$refs['subhuifu'][index].$el.classList.add('hide');
+        that.$refs['subhuifuBtn'][index].$el.classList.remove('hide');
+        that.getCommentAll();
+      });
+    },
+    clickSubhuifu(e, index){
+      this.$refs['subhuifu'].forEach(item => {
+        item.$el.classList.add('hide');
+      });
+      this.$refs['subhuifuBtn'].forEach(item => {
+        item.$el.classList.remove('hide');
+      });
+      this.$refs['subhuifu'][index].$el.classList.remove('hide');
+      this.$refs['subhuifuBtn'][index].$el.classList.add('hide');
+    },
+    getCommentAll(){
+      let that = this;
+      getComment({
+        userPhone: this.$store.state.user.phone,
+        goodsId: this.goodsId
+      }).then(res => {
+        that.commentList = res.data;
+        that.showComment = true;
+      });
+    },
+    suphuifuSubmit(e, index, id){
+      let content = this.$refs['suphuifuContent'][index].value, that = this;
+      if(content.length == 0) return this.$message.warning('回复不能为空');
+      replay0({
+        content: content,
+        goodsId: this.goodsId,
+        userPhone: this.$store.state.user.phone,
+        parentCommentId: id,
+      }).then(res => {
+        that.$refs['suphuifu'][index].$el.classList.add('hide');
+        that.$refs['huifuBtn'][index].$el.classList.remove('hide');
+        that.getCommentAll();
+      });
+    },
+    clickSuphuifu(e, index){
+      this.$refs['suphuifu'].forEach(item => {
+        item.$el.classList.add('hide');
+      });
+      this.$refs['huifuBtn'].forEach(item => {
+        item.$el.classList.remove('hide');
+      });
+      this.$refs['suphuifu'][index].$el.classList.remove('hide');
+      this.$refs['huifuBtn'][index].$el.classList.add('hide');
+    },
     createComment() {
       let that = this;
       if (!this.comment) return this.$message.warning("请先输入评论");
@@ -298,9 +243,9 @@ export default {
     comment_change(e) {
       this.comment = e.target.textContent;
     },
-    getComment() {
+    getCommentBtn() {
       this.showComment = true;
-      this.getComment();
+      this.getCommentAll();
     },
     getComment() {
       let that = this;
@@ -380,14 +325,61 @@ export default {
         target.innerText = target.innerText == "收藏" ? "取消收藏" : "收藏";
       });
     }
+  },
+  beforeRouteLeave() {
+    window.removeEventListener("visibilitychange", this.visibilitychange);
+  },
+  components: { goTop },
+  computed: {
+    mineGoods() {
+      return this.$store.state.user.phone == this.goods.phone;
+    }
   }
 };
 </script>
 <style scoped>
-.main{
+.suphuifuSubmit{
+  display: inline-block;
+  height: 30px;
+  width: 60px;
+  border-radius: 4px;
+  background-color: #027fff;
+  color: #fff;
+  line-height: 30px;
+  text-align: center;
+  cursor: pointer;
+}
+.huifu_container_inner{
+  margin-bottom: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 35px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  line-height: 35px;
+  text-align: left;
+  padding-left: 10px;
+}
+.huifu_container{
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: whitesmoke;
+}
+.comment_huifu_btn,
+.subcomment_huifu_btn{
+  font-size: 14px;
+  color: #aaa;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+.main {
   padding-bottom: 80px;
 }
 .subcomment_container {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: whitesmoke;
 }
 .subcomment_avatar {
   border: 1px solid #8590a6;
@@ -396,11 +388,12 @@ export default {
   height: 25px;
 }
 .subcomment_item_content {
+  border-bottom: 1px solid #ccc;
   margin-bottom: 10px;
   padding-bottom: 10px;
 }
 .comment_item_content {
-  border-bottom: 1px solid #8590a6;
+  border-bottom: 1px solid #eee;
   margin-bottom: 10px;
   padding-bottom: 10px;
 }

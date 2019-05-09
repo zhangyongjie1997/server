@@ -209,25 +209,67 @@ class UserController extends Utils {
     if (result.code == -1) return this.sendError(res, result.err);
     return res.send({ code: 0, msg: "成功" }).end();
   }
-  async getComment(req, res){
+  async reply_layer0(req, res){
+    let body = req.body, that = this, commentId;
 
+    async.waterfall(
+      [addComment, addPath],
+      (err) => {
+        if(err) return that.sendError(res, err);
+        return res.send({ code: 0, msg: "成功" }).end();
+      }
+    );
+
+    async function addComment(callback){
+      let result = await user.createComment(body, true);
+      if (result.code == -1) throw new Error(result.err.message);
+      commentId = result.data.commentId;
+    }
+
+    async function addPath(callback){
+      let result = await user.addPath(commentId, body.parentCommentId);
+      if (result.code == -1) throw new Error(result.err.message);
+    }
+  }
+
+  async getComment(req, res){
+    let goodsId = req.body.goodsId, comments, that = this;
+
+    async.waterfall(
+      [getComment0, getSubComment],
+      (err) => {
+        if(err) return that.sendError(res, err);
+      }
+    );
+    
+    async function getComment0(){
+      let result = await user.getComment0(goodsId);
+      if (result.code == -1) throw new Error(result.err.message);
+      comments = result.data;
+    }
+
+    async function getSubComment(){
+      async.eachSeries(
+        comments,
+        async (commentItem) => {
+          let result = await user.getSubComment(commentItem.id);
+          if (result.code == -1) throw new Error(result.err.message);
+          let childComments = result.data;
+          
+          commentItem.childComment = childComments;
+        },
+        (err) => {
+          if (err) throw new Error(err.message);
+          return res.send({ code: 0, msg: "成功", data: comments }).end();
+        }
+      );
+    }
   }
   async getComment_layer0(req, res){
     let body = req.body, that = this;
     let result = await user.getComment0(body.goodsId);
     if (result.code == -1) return this.sendError(res, result.err);
-    let comments = result.data;
-    // async.eachSeries(
-    //   comments, 
-    //   async commentItem => {
-    //     let userInfo = await user.findUserByPhone(commentItem.user);
-    //   },
-    //   (error) => {
-    //     if(error) return that.sendError(res, error);
-    //     return res.send({ code: 0, msg: "成功", data: comments }).end();
-    //   }
-    // );
-    return res.send({ code: 0, msg: "成功", data: comments }).end();
+    return res.send({ code: 0, msg: "成功", data: result.data }).end();
   }
   async getComment_layer1(goodsId){
 

@@ -151,8 +151,14 @@ export let getPersonalOrder = (data) => {
 export let createComment = (data) => {
   return axios.post('/user/comment/create', data);
 }
+export let replay0 = (data) => {
+  return axios.post('/user/reply0', data);
+}
 export let getComment0 = (data) => {
   return axios.post('/user/getComment0', data);
+}
+export let getComment = (data) => {
+  return axios.post('/user/getComment', data);
 }
 
 

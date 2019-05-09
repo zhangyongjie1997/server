@@ -50,9 +50,11 @@ class Goods extends Utils {
   }
   uploadSingleFile(req, res, path) {
     return new Promise(async resolve => {
+      
       let tmp_path = req.file.path;
       let target_path = "uploads/" + req.body.phone;
       let file_name = req.file.originalname;
+
       let result = await this.writeSingleFile(target_path, file_name, tmp_path);
       if (result.code == 0) {
         resolve({ code: 0, path: result.path });
@@ -68,29 +70,38 @@ class Goods extends Utils {
       const target_path = "uploads/" + phone + "/goods";
       const result = await this.dir_exist_create(target_path);
       if (result.code != 0) return this.sendError(res, result.err);
+
       const result2 = await this.getDirInfo(target_path);
       if (result2.code != 0) return this.sendError(res, result.err);
+
       const goodNo = result2.data.length + 1;
       const target_path2 = target_path + "/good" + goodNo;
+
       const result3 = await this.dir_exist_create(target_path2);
       if (result3.code != 0) return this.sendError(res, result.err);
+
       for (const key in req.files) {
         const target_path3 = target_path2 + "/" + key;
         const result4 = await this.dir_exist_create(target_path3);
+
         if (result4.code != 0) return this.sendError(res, result.err);
+
         req.files[key].forEach(async file => {
           const tmp_path = file.path;
           const file_name = file.originalname;
+
           if (key == "cover") {
             cover = ("//39.107.88.223/api/" + target_path3 + "/" + file_name).replace("uploads/", "static/");
           }
+
           const result5 = await this.writeSingleFile(target_path3, file_name, tmp_path);
           if (result5.code != 0) return this.sendError(res, result.err);
         });
       }
+
       let result6 = await this.insertGoods(req.body, goodNo, cover);
-      console.log(result6);
       if (result6.code != 0) return this.sendError(res, result.err);
+
       resolve({ code: 0, msg: "上传成功" });
     });
   }

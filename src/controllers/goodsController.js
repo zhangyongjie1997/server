@@ -141,12 +141,16 @@ class GoodsController extends Utils {
     let body = req.body;
     UserController.userVerify(body.userPhone, body.password).then(async result => {
       if (result.code != 0) return this.sendError(res, result.err);
+
       let result2 = await goods.deleteGoodsById(body.goodsId);
       if (result2.code != 0) return this.sendError(res, result2.err);
+
       let result3 = await user.deleteFormCollectAll(body.goodsId);
       if (result3.code != 0) return this.sendError(res, result2.err);
+
       let result4 = await user.deleteFromShopAll(body.goodsId);
       if (result4.code != 0) return this.sendError(res, result2.err);
+      
       res.send({ code: 0, msg: "删除成功" }).end();
     });
   }

@@ -17,6 +17,7 @@ class User extends Utils {
       resolve(res[0]);
     });
   }
+
   addUser(data) {
     return new Promise(async (resolve, reject) => {
       let res = await db.query("insert into user values(?,?,?,?,?)", data);
@@ -25,6 +26,7 @@ class User extends Utils {
       resolve(newUserList[0]);
     });
   }
+
   findLoginByPhone(phone) {
     return new Promise(async (resolve, reject) => {
       let res = await db.query("select * from login where phone=(?)", [phone]);
@@ -32,6 +34,7 @@ class User extends Utils {
       resolve(res[0]);
     });
   }
+
   async addLoginUser(phone, token) {
     let res = await this.findLoginByPhone(phone);
     if (res.length > 0) {
@@ -40,6 +43,7 @@ class User extends Utils {
       db.query("insert into login values(?,?)", [phone, token]);
     }
   }
+
   updateInfo(userPhone, phone, nick_name) {
     return new Promise(async (resolve, reject) => {
       let result = await db.query("update user set phone=(?),nick_name=(?) where phone=(?)", [
@@ -55,6 +59,7 @@ class User extends Utils {
       }
     });
   }
+
   changePwd(phone, pwd) {
     return new Promise(async resolve => {
       let result = await db.query("update user set password=? where phone=?", [phone, pwd]);
@@ -62,6 +67,7 @@ class User extends Utils {
       resolve({ code: 0, data: result[0] });
     });
   }
+
   findCollect(phone, id) {
     return new Promise(async (resolve, reject) => {
       if (!phone && !id) {
@@ -74,6 +80,7 @@ class User extends Utils {
       resolve({ code: 0, data: result[0] });
     });
   }
+
   getCollectCount() {
     return new Promise(async (resolve, reject) => {
       let result = await db.query("select count(id) as count,id,phone from collect group by id");
@@ -81,6 +88,12 @@ class User extends Utils {
       resolve({ code: 0, data: result[0] });
     });
   }
+
+  /**
+   *
+   * @param {*} phone
+   * @param {*} id
+   */
   collect(phone, id) {
     return new Promise(async (resolve, reject) => {
       let collect = await this.findCollect(phone, id),
@@ -100,9 +113,20 @@ class User extends Utils {
       }
     });
   }
+
+  /**
+   *
+   * @param {*} path
+   * @param {*} phone
+   */
   updateAvatar(path, phone) {
     db.query("update user set avatar=(?) where phone=(?)", [path, phone]);
   }
+
+  /**
+   *
+   * @param {*} req
+   */
   uploadAvatar(req) {
     return new Promise(async (resolve, reject) => {
       let ExtensionName = req.file.mimetype.split("/")[1];
@@ -117,6 +141,7 @@ class User extends Utils {
       }
     });
   }
+
   userWriteSingleFile(req, res, path, avatar) {
     return new Promise(async (resolve, reject) => {
       let tmp_path = req.file.path;
@@ -130,6 +155,7 @@ class User extends Utils {
       }
     });
   }
+
   getOneCollect(phone, id) {
     return new Promise(async resolve => {
       let result = await db.query("select * from collect where phone=? and id=?", [phone, id]);
@@ -137,6 +163,7 @@ class User extends Utils {
       resolve({ code: 0, data: result[0] });
     });
   }
+
   findShopByPhone(phone) {
     return new Promise(resolve => {
       Shop.findOne(
@@ -150,6 +177,7 @@ class User extends Utils {
       );
     });
   }
+
   addShop(phone, list) {
     return new Promise(async resolve => {
       Shop.updateOne({ phone }, { idList: list }, (err, result) => {
@@ -158,6 +186,7 @@ class User extends Utils {
       });
     });
   }
+
   addNewShop(phone, id, count) {
     return new Promise(resolve => {
       new Shop({ phone, idList: [{ id, count }] }).save((err, result) => {
@@ -166,6 +195,7 @@ class User extends Utils {
       });
     });
   }
+
   deleteFormCollectAll(id) {
     return new Promise(async resolve => {
       let result = await db.query("delete from collect where id=?", [id]);
@@ -173,6 +203,7 @@ class User extends Utils {
       resolve({ code: 0, data: result[0] });
     });
   }
+
   deleteFromShopAll(id) {
     return new Promise(resolve => {
       Shop.find({}, (err, data) => {
@@ -193,30 +224,92 @@ class User extends Utils {
       });
     });
   }
-  createComment(data) {
+  createComment(data, noPath) {
     return new Promise(async resolve => {
-      let result = await db.query("insert into comment values(?,?,?,?)", [
-        Utils.getTimestamp(),
+      let commentId = Utils.getTimestamp(), commentType = 0;
+      if(noPath) commentType = 1;
+      let result = await db.query("insert into comment values(?,?,?,?,?)", [
+        commentId,
         data.content,
         data.goodsId,
-        data.userPhone
+        data.userPhone,
+        commentType
+      ]);
+      if (result[1]) return resolve({ code: -1, err: result[1] });
+
+      if (!noPath) {
+        let result2 = await db.query("insert into comment_path values(?,?,?)", [commentId, commentId, 0]);
+        if (result2[1]) return resolve({ code: -1, err: result2[1] });
+      }
+
+      resolve({ code: 0, data: { commentId } });
+    });
+  }
+  addPath(commentId, parentCommentId) {
+    return new Promise(async resolve => {
+      let result = await db.query(
+        "insert into comment_path (comment, sub_comment, depath) select cp.comment, ?, cp.depath+1 from comment_path as cp where cp.sub_comment=? union all select ?, ?, 0",
+        [commentId, parentCommentId, commentId, commentId]
+      );
+      if (result[1]) return resolve({ code: -1, err: result[1] });
+      resolve({ code: 0, data: { commentId } });
+    });
+  }
+  getComment0(goodsId) {
+    return new Promise(async resolve => {
+      let result = await db.query("select c.*,u.* from comment c join user u on(c.user=u.phone) where c.goods=? and c.type=0", [
+        goodsId
       ]);
       if (result[1]) return resolve({ code: -1, err: result[1] });
       resolve({ code: 0, data: result[0] });
     });
   }
-  getComment0(goodsId){
+  getSubComment(commentId) {
+    let that = this;
     return new Promise(async resolve => {
-      let result = await db.query("select c.*,u.* from comment c join user u on(c.user=u.phone) where c.goods=?", [goodsId])
-      console.log(result)
+      let result = await db.query(
+        "select c.*,cp.*,u.* from comment c join comment_path cp on (c.id = cp.sub_comment) join user u on (c.user=u.phone) where cp.comment=? and c.type=1",
+        [commentId]
+      );
+
       if (result[1]) return resolve({ code: -1, err: result[1] });
-      resolve({ code: 0, data: result[0] });
+
+      let childComments = result[0];
+      async.eachSeries(
+        childComments,
+        async childCommentItem => {
+          if(childCommentItem.depath >= 1){
+            let parent = await that.getParentComment(childCommentItem.id);
+            if (parent.code == -1) throw new Error(result.err.message);
+            childCommentItem.parent = parent.data[0];
+          }
+        },
+        (err) => {
+          if (result.code == -1) throw new Error(result.err.message);
+          resolve({ code: 0, data: childComments });
+        }
+      );
     });
   }
-  getComment1(goodsId){
+  getParentComment(commentId){
     return new Promise(async resolve => {
-      let result = await db.query("select c.*,u.* from comment c join user u on(c.user=u.phone) where c.goods=?", [goodsId])
-      console.log(result)
+
+      let result = await db.query('select comment from comment_path where sub_comment=? and depath=1', [commentId]);
+      if (result[1]) return resolve({ code: -1, err: result[1] });
+
+      let result2 = await db.query('select c.*,u.* from comment c join user u on(c.user=u.phone) where c.id=?', [result[0][0].comment]);
+      if (result2[1]) return resolve({ code: -1, err: result[1] });
+      resolve({ code: 0, data: result2[0] });
+
+    });
+  }
+  getComment1(goodsId) {
+    return new Promise(async resolve => {
+      let result = await db.query(
+        "select c.*,u.* from comment c join user u on(c.user=u.phone) where c.goods=?", 
+        [goodsId]
+      );
+      console.log(result);
       if (result[1]) return resolve({ code: -1, err: result[1] });
       resolve({ code: 0, data: result[0] });
     });

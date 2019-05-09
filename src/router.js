@@ -98,8 +98,12 @@ router.post('/order/personalOrder', orderController.personalOrder.bind(orderCont
 router.post('/user/orderStatus', orderController.getOrderStatus.bind(orderController));
 //添加评论
 router.post('/user/comment/create', userController.createComment.bind(userController));
+//第一层回复
+router.post('/user/reply0', userController.reply_layer0.bind(userController));
 //获取顶层评论
 router.post('/user/getComment0', userController.getComment_layer0.bind(userController));
+//获取所有评论
+router.post('/user/getComment', userController.getComment.bind(userController));
 //dbtest
 router.all('/mongo', goodsController.dbtest.bind(goodsController));
 //获取城市列表
