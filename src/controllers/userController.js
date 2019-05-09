@@ -203,12 +203,20 @@ class UserController extends Utils {
         res.send({ code: 0, data: err.data, msg: "获取成功" }).end();
       });
   }
+
+
   async createComment(req, res) {
     let body = req.body;
     let result = await user.createComment(body);
     if (result.code == -1) return this.sendError(res, result.err);
     return res.send({ code: 0, msg: "成功" }).end();
   }
+
+  /**
+   * @method 添加回复
+   * @param {*} req 
+   * @param {*} res 
+   */
   async reply_layer0(req, res){
     let body = req.body, that = this, commentId;
 
@@ -221,7 +229,7 @@ class UserController extends Utils {
     );
 
     async function addComment(callback){
-      let result = await user.createComment(body, true);
+      let result = await user.createComment(body, true);  //如果是回复就不需要在cp加i,i,0
       if (result.code == -1) throw new Error(result.err.message);
       commentId = result.data.commentId;
     }
@@ -232,6 +240,12 @@ class UserController extends Utils {
     }
   }
 
+
+  /**
+   * @method 获取某个商品下的所有评论
+   * @param {*} req 
+   * @param {*} res 
+   */
   async getComment(req, res){
     let goodsId = req.body.goodsId, comments, that = this;
 
@@ -242,16 +256,22 @@ class UserController extends Utils {
       }
     );
     
-    async function getComment0(){
+    /**
+     * @method 获取第一层root评论
+     */
+    async function getComment0(){  //获取第一层root评论
       let result = await user.getComment0(goodsId);
       if (result.code == -1) throw new Error(result.err.message);
       comments = result.data;
     }
 
-    async function getSubComment(){
+    /**
+     * @method 获取子评论
+     */
+    async function getSubComment(){  //获取子评论
       async.eachSeries(
         comments,
-        async (commentItem) => {
+        async (commentItem) => {  //获取每个root下的子评论
           let result = await user.getSubComment(commentItem.id);
           if (result.code == -1) throw new Error(result.err.message);
           let childComments = result.data;
@@ -265,6 +285,7 @@ class UserController extends Utils {
       );
     }
   }
+
   async getComment_layer0(req, res){
     let body = req.body, that = this;
     let result = await user.getComment0(body.goodsId);

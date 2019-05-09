@@ -224,6 +224,12 @@ class User extends Utils {
       });
     });
   }
+
+  /**
+   * @method 添加评论，分两种情况，noPath，添加回复或者是添加root
+   * @param {*} data 
+   * @param {*} noPath 
+   */
   createComment(data, noPath) {
     return new Promise(async resolve => {
       let commentId = Utils.getTimestamp(), commentType = 0;
@@ -245,6 +251,12 @@ class User extends Utils {
       resolve({ code: 0, data: { commentId } });
     });
   }
+
+  /**
+   * @method 为每个评论建立层级关系
+   * @param {*} commentId 
+   * @param {*} parentCommentId 
+   */
   addPath(commentId, parentCommentId) {
     return new Promise(async resolve => {
       let result = await db.query(
@@ -255,6 +267,11 @@ class User extends Utils {
       resolve({ code: 0, data: { commentId } });
     });
   }
+
+  /**
+   * @method 获取root评论
+   * @param {*} goodsId 
+   */
   getComment0(goodsId) {
     return new Promise(async resolve => {
       let result = await db.query("select c.*,u.* from comment c join user u on(c.user=u.phone) where c.goods=? and c.type=0", [
@@ -264,6 +281,11 @@ class User extends Utils {
       resolve({ code: 0, data: result[0] });
     });
   }
+
+  /**
+   * @method 查找root下的所有回复
+   * @param {*} commentId 
+   */
   getSubComment(commentId) {
     let that = this;
     return new Promise(async resolve => {
@@ -278,7 +300,7 @@ class User extends Utils {
       async.eachSeries(
         childComments,
         async childCommentItem => {
-          if(childCommentItem.depath >= 1){
+          if(childCommentItem.depath >= 1){  //如果不是直接回复的root，就查找他的父级
             let parent = await that.getParentComment(childCommentItem.id);
             if (parent.code == -1) throw new Error(result.err.message);
             childCommentItem.parent = parent.data[0];
@@ -291,9 +313,14 @@ class User extends Utils {
       );
     });
   }
+
+  /**
+   * @method 获取父级
+   * @param {*} commentId 
+   */
   getParentComment(commentId){
     return new Promise(async resolve => {
-
+      //获取父id
       let result = await db.query('select comment from comment_path where sub_comment=? and depath=1', [commentId]);
       if (result[1]) return resolve({ code: -1, err: result[1] });
 
