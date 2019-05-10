@@ -4,7 +4,7 @@ import Router from "vue-router";
 Vue.use(Router);
 
 export default new Router({
-  // mode: "history",
+  mode: "history",
   routes: [
     {
       path: "/login",
@@ -47,14 +47,6 @@ export default new Router({
       }
     },
     {
-      path: "/",
-      name: "index",
-      component: () => import('./views/index.vue'),
-      meta:{
-        title:'首页'
-      }
-    },
-    {
       path: "/classList",
       name: "classList",
       component: () => import('./views/classList.vue'),
@@ -76,6 +68,14 @@ export default new Router({
       component: () => import('./views/settlement.vue'),
       meta:{
         title:'结算'
+      }
+    },
+    {
+      path: "/",
+      name: "index",
+      component: () => import('./views/index.vue'),
+      meta:{
+        title:'首页'
       }
     },
   ]

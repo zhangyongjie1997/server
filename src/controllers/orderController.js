@@ -57,12 +57,11 @@ class OrderController extends Utils {
       trade_no: req.body.trade_no,
       operator_id: "001"
     });
-    console.log(result2);
     if (result.code == -1) return that.sendError(res, result.err);
     res.send({ code: 0, msg: "成功" }).end();
   }
-  async addOrder(goodsList, phone) {
-    const orderObj = new Order(Utils.getTimestamp(), OrderController.getAmount(goodsList), phone, orderStatus.wait);
+  async addOrder(goodsList, phone, shopId) {
+    const orderObj = new Order(Utils.getTimestamp(), OrderController.getAmount(goodsList), phone, orderStatus.wait, shopId);
     let result = await order.addOrder(orderObj);
     result.order = orderObj;
     return result;
@@ -82,7 +81,7 @@ class OrderController extends Utils {
         goodsList.push(goodsItem.data[0]);
       },
       async () => {
-        let result = await that.addOrder(goodsList, req.body.userPhone);
+        let result = await that.addOrder(goodsList, req.body.userPhone, shop.data.id);
         if (result.code == -1) return that.sendError(res, result.err);
         return res.send({ code: 0, data: result.order, msg: "成功" }).end();
       }
@@ -96,7 +95,7 @@ class OrderController extends Utils {
 }
 
 class Order {
-  constructor(id = "", amount = "", phone = "", status = "") {
+  constructor(id = "", amount = "", phone = "", status = "", shop = "") {
     var orderParams = {
       body: "ttt",
       subject: "订单支付",
@@ -111,6 +110,7 @@ class Order {
     this.amount = amount;
     this.phone = phone;
     this.status = status;
+    this.shop = shop;
     this.getParams = function() {
       return {
         ...orderParams,

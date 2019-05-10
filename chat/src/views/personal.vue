@@ -51,7 +51,9 @@
               <el-col :span="2">分类：{{classFilter(item.class)}}</el-col>
               <el-col class="text-right" :span="6">发布时间：{{item.time}}</el-col>
               <el-col class="text-center" :span="3">
-                <el-button plain @click="delDialogVisible = true;clickGoodsId = item.id;" type="danger" size="mini">取消上架</el-button>
+                <el-button v-show="item.status==0" plain @click="delDialogVisible = true;clickGoodsId = item.id;" type="danger" size="mini">取消上架</el-button>
+                <el-button v-show="item.status==-1" @click="delDialogVisible2 = true;clickGoodsId = item.id;" @mouseenter.native="removedMouseenter" @mouseout.native="removedMouseout" plain size="mini">已下架</el-button>
+                <el-button v-show="item.status==1" @click="$router.push('/myOrder')" @mouseenter.native="removedMouseenter" @mouseout.native="removedMouseout" plain size="mini">已下架</el-button>
               </el-col>
             </el-row>
           <div class="block pagination_container">
@@ -167,8 +169,9 @@
           <el-table-column label="操作" align="center" width="400">
             <template slot-scope="scope">
               <el-button
+                v-show="scope.row.status == 2"
                 size="mini"
-                @click="$router.push('/order?id=' + scope.row.id)">查看</el-button>
+                @click="goPay($event ,scope.row.id)">去支付</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -223,15 +226,31 @@
         <el-button type="primary" @click="deleteGoods">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog
+      title="提示"
+      :visible.sync="delDialogVisible2"
+      width="30%">
+      <el-row class="color_danger">重新上架商品之前，请输入当前账户的密码进行验证！</el-row>
+      <el-form :rules="delRules" :model="delForm" ref="delForm">
+        <el-form-item prop="password">
+          <el-input v-model="delForm.password" type="password"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="changeDelDialogVisible">取 消</el-button>
+        <el-button type="primary" @click="resell">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>;
 <script>
 import { baseUrl } from "../lib/config.js";
 import utils from '../lib/utils.js';
-import { getPersonalOrder, changePwd, editShopSubmit, getShop, deleteGoods, collect, editPersonalInfo, getCollect, getPersonalGoods, getGoodsClass } from "../api/api.js";
+import { orderPay, resellGoods, getPersonalOrder, changePwd, editShopSubmit, getShop, deleteGoods, collect, editPersonalInfo, getCollect, getPersonalGoods, getGoodsClass } from "../api/api.js";
 export default {
   data() {
     return {
+      delDialogVisible2: false,
       pwdDialogVisible: false,
       activeTab: 'info',
       //user:{},
@@ -273,8 +292,48 @@ export default {
     }
     this.getGoodsClass();
     this.getShop();
+    window.addEventListener('visibilitychange', this.visibilityChange);
   },
   methods: {
+    visibilityChange(){
+      if (document.visibilityState == "visible") this.getPersonalOrder();
+    },
+    goPay(e, orderId){
+      let that = this;
+      orderPay({orderId, userPhone: this.$store.state.user.phone})
+        .then(res => {
+          if(res.code != 0) return that.$message.error(res.msg);
+          window.open(res.data.url);
+        });
+    },
+    resell(){
+      let that = this;
+      this.$refs.delForm.validate(valid => {
+        if(!valid) return;
+        resellGoods({
+          goodsId: that.clickGoodsId,
+          password: that.delForm.password
+        }).then(res => {
+          if(res.code != 0) return that.$message.error(res.msg);
+          that.changeDelDialogVisible();
+          that.$message.success(res.msg);
+          that.getPersonalGoods();
+        });
+      });
+    },
+    removedMouseenter(e){
+      e.target.innerText = '重新上架';
+    },
+    removedMouseout(e){
+      e.target.innerText = '已下架';
+    },
+    removedMouseevent(e){
+      if(e.target.innerText.length > 3){
+        e.target.innerText = '已下架';
+      }else{
+        e.target.innerText = '重新上架';
+      }
+    },
     getPersonalOrder(){
       let that = this;
       getPersonalOrder({userPhone: this.$store.state.user.phone}).then(res => {
@@ -345,7 +404,8 @@ export default {
       return str;
     },
     changeDelDialogVisible(){
-      this.delDialogVisible = !this.delDialogVisible;
+      this.delDialogVisible2 = false;
+      this.delDialogVisible = false;
       this.delForm.password = '';
     },
     deleteGoods(e, id){
@@ -516,6 +576,9 @@ export default {
         }
       })
     }
+  },
+  beforeRouteLeave(){
+    window.removeEventListener('visibilitychange', this.visibilityChange);
   },
   computed: {
     user(){

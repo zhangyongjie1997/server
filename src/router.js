@@ -86,6 +86,8 @@ router.all('/pay/callback', orderController.verifyCallback.bind(orderController)
 router.post('/pay/pay', goodsController.payGoods.bind(goodsController));
 //下架商品
 router.post('/goods/delete', goodsController.deleteGoods.bind(goodsController));
+//重新上架商品
+router.post('/goods/resell', goodsController.resell.bind(goodsController));
 //提交订单
 router.post('/user/orderCommit', orderController.orderCommit.bind(orderController));
 //订单支付

@@ -23,12 +23,20 @@ mongoose.connection.on('disconnected', function() {
 });
 
 const shopSchema = new Schema({
+  id: {
+    type: String,
+    require: true
+  },
   phone: {
     type: String,
     require: true
   },
   idList: {
     type: Array
+  },
+  status: {
+    type: String,
+    require: true
   }
 });
 

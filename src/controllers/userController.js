@@ -170,7 +170,7 @@ class UserController extends Utils {
   async getShop(req, res) {
     let result = await user.findShopByPhone(req.body.userPhone);
     if (result.code == -1) return this.sendError(res, result.err);
-    if (!result.data) res.send({ code: 0, data: [], msg: "成功" }).end();
+    if (!result.data) return res.send({ code: 0, data: [], msg: "成功" }).end();
     let list = [];
     async.eachSeries(
       result.data.idList,

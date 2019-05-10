@@ -109,6 +109,9 @@ export let getClassList = (data) => {
 export let deleteGoods = (data) => {
   return axios.post('/goods/delete', data);
 }
+export let resellGoods = (data) => {
+  return axios.post('/goods/resell', data);
+}
 export let getOneGoods = (data) => {
   return axios.post('/goods/getOne', data);
 }

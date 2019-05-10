@@ -3,6 +3,7 @@ const Utils = require("../lib/utils");
 const db = require("../db/db");
 const async = require("async");
 const path = require("path");
+const goodsStatus = require('../lib/config').goodsStatus;
 
 class Goods extends Utils {
   constructor() {
@@ -16,6 +17,7 @@ class Goods extends Utils {
       resolve({ code: 0, data: res[0] });
     });
   }
+
   createGoods() {
     return Mock.mock({
       "list|5": [
@@ -32,6 +34,7 @@ class Goods extends Utils {
       ]
     });
   }
+
   addGoods() {
     let goods = this.createGoods().list;
     goods.forEach(async item => {
@@ -45,9 +48,11 @@ class Goods extends Utils {
       let res = await db.query("insert into goods values(?,?,?,?,?,?,?,?)", data);
     });
   }
+
   upload(request, response, next) {
     response.end(JSON.stringify({ code: 0 }));
   }
+
   uploadSingleFile(req, res, path) {
     return new Promise(async resolve => {
       
@@ -63,6 +68,7 @@ class Goods extends Utils {
       }
     });
   }
+
   addGood(req, res, next) {
     return new Promise(async resolve => {
       let cover;
@@ -105,6 +111,7 @@ class Goods extends Utils {
       resolve({ code: 0, msg: "上传成功" });
     });
   }
+
   insertGoods(data, id, cover) {
     let _this = this;
     return new Promise(async resolve => {
@@ -122,11 +129,13 @@ class Goods extends Utils {
       resolve({ code: 0, msg: "成功" });
     });
   }
+
   async getNextGoodsId() {
     let result = await db.query("select max(id) from goods");
     if (!result[0][0]["max(id)"]) return 0;
     return result[0][0]["max(id)"] * 1 + 1;
   }
+
   getGoodsClass() {
     return new Promise(async resolve => {
       let result = await this.readFile(path.resolve(__dirname, "../../public/goods/goodsClass.json"));
@@ -134,6 +143,7 @@ class Goods extends Utils {
       resolve({ code: 0, data: result.data });
     });
   }
+
   getCollection(phone) {
     return new Promise(async resolve => {
       let collectList = [];
@@ -155,6 +165,7 @@ class Goods extends Utils {
       );
     });
   }
+
   getListByClass(goodsClass) {
     return new Promise(async resolve => {
       let querySql = "select * from goods where class=?";
@@ -166,6 +177,7 @@ class Goods extends Utils {
       return resolve({ code: 0, data: result[0] });
     });
   }
+
   getGoodsListByPhone(phone) {
     return new Promise(async resolve => {
       let result = await db.query("select * from goods where phone=?", [phone]);
@@ -173,6 +185,7 @@ class Goods extends Utils {
       return resolve({ code: 0, data: result[0] });
     });
   }
+
   getGoodsById(id) {
     return new Promise(async resolve => {
       let result = await db.query("select * from goods where id=?", [id]);
@@ -180,9 +193,26 @@ class Goods extends Utils {
       return resolve({ code: 0, data: result[0] });
     });
   }
+
   deleteGoodsById(id) {
     return new Promise(async resolve => {
       let result = await db.query("delete from goods where id=?", [id]);
+      if (result[1]) return resolve({ code: -1, err: result[1] });
+      return resolve({ code: 0, data: result[0] });
+    });
+  }
+
+  changeGoodsStatusById(id, status){
+    return new Promise(async resolve => {
+      let result = await db.query("update goods set status=? where id=?", [goodsStatus[status], id]);
+      if (result[1]) return resolve({ code: -1, err: result[1] });
+      return resolve({ code: 0, data: result[0] });
+    });
+  }
+
+  removeGoodsById(id){
+    return new Promise(async resolve => {
+      let result = await db.query("update goods set status=? where id=?", [goodsStatus.removed, id]);
       if (result[1]) return resolve({ code: -1, err: result[1] });
       return resolve({ code: 0, data: result[0] });
     });

@@ -2,7 +2,7 @@ const db = require("../db/db");
 const Utils = require("../lib/utils");
 const { Shop } = require("../db/mongo");
 const async = require("async");
-const { orderStatus } = require("../lib/config");
+const { orderStatus, shopStatus } = require("../lib/config");
 
 class User extends Utils {
   constructor() {
@@ -164,11 +164,12 @@ class User extends Utils {
     });
   }
 
-  findShopByPhone(phone) {
+  findShopByPhone(phone, status = 'normal') {
     return new Promise(resolve => {
       Shop.findOne(
         {
-          phone
+          phone,
+          status: shopStatus[status]
         },
         (err, result) => {
           if (err) return resolve({ code: -1, err });
@@ -180,7 +181,16 @@ class User extends Utils {
 
   addShop(phone, list) {
     return new Promise(async resolve => {
-      Shop.updateOne({ phone }, { idList: list }, (err, result) => {
+      Shop.updateOne({ phone, status: shopStatus['normal'] }, { idList: list }, (err, result) => {
+        if (err) return resolve({ code: -1, err });
+        return resolve({ code: 0, data: result });
+      });
+    });
+  }
+
+  changeShopStatus(shopId, status = 'normal') {
+    return new Promise(async resolve => {
+      Shop.updateOne({ id: shopId }, { status: shopStatus[status] }, (err, result) => {
         if (err) return resolve({ code: -1, err });
         return resolve({ code: 0, data: result });
       });
@@ -189,7 +199,7 @@ class User extends Utils {
 
   addNewShop(phone, id, count) {
     return new Promise(resolve => {
-      new Shop({ phone, idList: [{ id, count }] }).save((err, result) => {
+      new Shop({ id: Utils.getTimestamp(), phone, idList: [{ id, count }], status: shopStatus['normal'] }).save((err, result) => {
         if (err) return resolve({ code: -1, err });
         return resolve({ code: 0, data: result });
       });
@@ -233,7 +243,7 @@ class User extends Utils {
   createComment(data, noPath) {
     return new Promise(async resolve => {
       let commentId = Utils.getTimestamp(), commentType = 0;
-      if(noPath) commentType = 1;
+      if (noPath) commentType = 1;
       let result = await db.query("insert into comment values(?,?,?,?,?)", [
         commentId,
         data.content,
@@ -300,7 +310,7 @@ class User extends Utils {
       async.eachSeries(
         childComments,
         async childCommentItem => {
-          if(childCommentItem.depath >= 1){  //如果不是直接回复的root，就查找他的父级
+          if (childCommentItem.depath >= 1) {  //如果不是直接回复的root，就查找他的父级
             let parent = await that.getParentComment(childCommentItem.id);
             if (parent.code == -1) throw new Error(result.err.message);
             childCommentItem.parent = parent.data[0];
@@ -318,7 +328,7 @@ class User extends Utils {
    * @method 获取父级
    * @param {*} commentId 
    */
-  getParentComment(commentId){
+  getParentComment(commentId) {
     return new Promise(async resolve => {
       //获取父id
       let result = await db.query('select comment from comment_path where sub_comment=? and depath=1', [commentId]);
@@ -333,7 +343,7 @@ class User extends Utils {
   getComment1(goodsId) {
     return new Promise(async resolve => {
       let result = await db.query(
-        "select c.*,u.* from comment c join user u on(c.user=u.phone) where c.goods=?", 
+        "select c.*,u.* from comment c join user u on(c.user=u.phone) where c.goods=?",
         [goodsId]
       );
       console.log(result);

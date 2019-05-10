@@ -32,13 +32,15 @@
         <p class="pack_info text-left">今天下单于2019-04-04日前发货</p>
         <div class="num text-left">
           数量：
-          <el-input-number size="mini" v-model="goodsNum" :min="1" :max="3" label="描述文字"></el-input-number>
+          <el-input-number size="mini" v-model="goodsNum" :min="1" :max="1" label="描述文字"></el-input-number>
         </div>
-        <div v-if="!mineGoods" class="btn_container text-left">
+        <div v-if="!mineGoods && goods.status == 0" class="btn_container text-left">
           <el-button @click="buyNow" size="medium" type="danger">立即购买</el-button>
           <el-button @click="addShop" size="medium" type="warning">加入购物车</el-button>
           <p v-if="hadShop">您的购物车中已存在该商品。</p>
         </div>
+        <div v-if="goods.status == -1" class="btn_container">已下架</div>
+        <div v-if="goods.status == 1" class="btn_container">已售空</div>
         <div class="discribe text-left">
           <p class="discribe_title">描述：</p>
           <p class="discribe_content">{{goods.describe}}</p>
@@ -204,6 +206,7 @@ export default {
       }).then(res => {
         that.$refs['suphuifu'][index].$el.classList.add('hide');
         that.$refs['huifuBtn'][index].$el.classList.remove('hide');
+        that.$refs['suphuifuContent'][index].value = '';
         that.getCommentAll();
       });
     },
@@ -226,6 +229,7 @@ export default {
         userPhone: this.$store.state.user.phone,
         supComment: ""
       }).then(res => {
+        that,comment = '';
         that.getComment();
       });
     },
