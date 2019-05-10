@@ -88,7 +88,7 @@
                 <span class="suphuifuSubmit" @click="suphuifuSubmit($event, index, item.id)">回复</span>
               </div>
             </el-col>
-            <el-col v-if="item.childComment" class="text_left subcomment_container" :offset="1" :span="23">
+            <el-col v-if="item.childComment && item.childComment.length > 0" class="text_left subcomment_container" :offset="1" :span="23">
               <div v-for="(item2, index2) in item.childComment" :key="index2" class="subcomment_item_container">
                 <el-row>
                   <el-col :span="1">
@@ -330,8 +330,9 @@ export default {
       });
     }
   },
-  beforeRouteLeave() {
+  beforeRouteLeave(to, from, next) {
     window.removeEventListener("visibilitychange", this.visibilitychange);
+    next();
   },
   components: { goTop },
   computed: {

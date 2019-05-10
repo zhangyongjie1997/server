@@ -61,10 +61,26 @@ class OrderController extends Utils {
     res.send({ code: 0, msg: "成功" }).end();
   }
   async addOrder(goodsList, phone, shopId) {
-    const orderObj = new Order(Utils.getTimestamp(), OrderController.getAmount(goodsList), phone, orderStatus.wait, shopId);
-    let result = await order.addOrder(orderObj);
-    result.order = orderObj;
-    return result;
+    return new Promise(async resolve => {
+      const orderObj = new Order(Utils.getTimestamp(), OrderController.getAmount(goodsList), phone, orderStatus.wait, shopId);
+      async.eachSeries(
+        goodsList,
+        async goodsItem => {
+          let result2 = await goods.changeGoodsStatusById(goodsItem.id, 'selled', orderObj.id);
+          if(result2.code != 0) throw new Error(result2.err.message);
+        },
+        async (err) => {
+          if(err){
+            result.code = -1;
+            result.err = err;
+            return resolve(result);
+          }
+          let result = await order.addOrder(orderObj);
+          result.order = orderObj;
+          resolve(result);
+        }
+      );
+    });
   }
   async orderCommit(req, res) {
     let that = this;
@@ -83,10 +99,38 @@ class OrderController extends Utils {
       async () => {
         let result = await that.addOrder(goodsList, req.body.userPhone, shop.data.id);
         if (result.code == -1) return that.sendError(res, result.err);
+        that.startOrderJob(result.order.id);
         return res.send({ code: 0, data: result.order, msg: "成功" }).end();
       }
     );
   }
+
+  startOrderJob(orderId){  //15分钟后判断订单是否超时
+    setTimeout(async () => {
+      let result = await order.getOrderById(orderId);
+      if(result.code == -1) return startOrderJob(orderId);
+
+      let orderObj = result.data[0];
+
+      if(orderObj.status == 2){
+        async.parallel(
+          [changeStatus, releaseGoods],
+          err => {}
+        );
+      }
+
+      async function changeStatus(callback){
+        await order.orderStatusChange(orderStatus.fail, orderObj.id);
+        callback(null);
+      }
+
+      async function releaseGoods(callback){
+        await goods.releaseGoodsByOrder(orderObj.id);
+        callback(null);
+      }
+    }, 1000 * 60 * 15);  //设置订单的超时时间为15分钟
+  }
+  
   async getOrderStatus(req, res) {
     let result = await order.getOrderById(req.body.orderId);
     if (result.code == -1) return this.sendError(res, result.err);

@@ -53,7 +53,7 @@
               <el-col class="text-center" :span="3">
                 <el-button v-show="item.status==0" plain @click="delDialogVisible = true;clickGoodsId = item.id;" type="danger" size="mini">取消上架</el-button>
                 <el-button v-show="item.status==-1" @click="delDialogVisible2 = true;clickGoodsId = item.id;" @mouseenter.native="removedMouseenter" @mouseout.native="removedMouseout" plain size="mini">已下架</el-button>
-                <el-button v-show="item.status==1" @click="$router.push('/myOrder')" @mouseenter.native="removedMouseenter" @mouseout.native="removedMouseout" plain size="mini">已下架</el-button>
+                <el-button v-show="item.status==1" plain size="mini">已售出</el-button>
               </el-col>
             </el-row>
           <div class="block pagination_container">
@@ -122,7 +122,7 @@
             </el-table-column>
             <el-table-column label="数量" align="center" width="280">
               <template slot-scope="scope">
-                <el-input-number size="mini" v-model="scope.row.shopCount" :min="1" :max="99" label="描述文字"></el-input-number>
+                <el-input-number size="mini" v-model="scope.row.shopCount" :min="1" :max="1" label="描述文字"></el-input-number>
               </template>
             </el-table-column>
             <el-table-column :formatter="colSumFormatter" align="center"
@@ -577,8 +577,9 @@ export default {
       })
     }
   },
-  beforeRouteLeave(){
+  beforeRouteLeave(to, from, next){
     window.removeEventListener('visibilitychange', this.visibilityChange);
+    next();
   },
   computed: {
     user(){

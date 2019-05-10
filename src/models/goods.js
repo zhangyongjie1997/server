@@ -202,11 +202,17 @@ class Goods extends Utils {
     });
   }
 
-  changeGoodsStatusById(id, status){
+  changeGoodsStatusById(id, status = 'normal', orderId){
     return new Promise(async resolve => {
-      let result = await db.query("update goods set status=? where id=?", [goodsStatus[status], id]);
-      if (result[1]) return resolve({ code: -1, err: result[1] });
-      return resolve({ code: 0, data: result[0] });
+      if(orderId){
+        let result = await db.query("update goods set status=?,order=? where id=?", [goodsStatus[status], id, orderId]);
+        if (result[1]) return resolve({ code: -1, err: result[1] });
+        return resolve({ code: 0, data: result[0] });
+      }else{
+        let result = await db.query("update goods set status=? where id=?", [goodsStatus[status], id]);
+        if (result[1]) return resolve({ code: -1, err: result[1] });
+        return resolve({ code: 0, data: result[0] });
+      }
     });
   }
 
@@ -215,6 +221,35 @@ class Goods extends Utils {
       let result = await db.query("update goods set status=? where id=?", [goodsStatus.removed, id]);
       if (result[1]) return resolve({ code: -1, err: result[1] });
       return resolve({ code: 0, data: result[0] });
+    });
+  }
+
+  getGoodsByOrder(orderId){
+    return new Promise(async resolve => {
+      let result = await db.query('select * from goods where order=?', [orderId]);
+      if (result[1]) return resolve({ code: -1, err: result[1] });
+      return resolve({ code: 0, data: result[0] });
+    });
+  }
+
+  releaseGoodsByOrder(orderId){
+    let that = this;
+    return new Promise(async resolve => {
+      let result = await this.getGoodsByOrder(orderId);
+      if (result[1]) return resolve({ code: -1, err: result[1] });
+
+      let goodsList = result.data;
+      async.eachSeries(
+        goodsList,
+        async goodsItem => {
+          let result2 = await that.changeGoodsStatusById(goodsItem.id, 'normal');
+          if(result2[1]) throw new Error(result2.message);
+        },
+        err => {
+          if(err) return resolve({code: -1, err});
+          resolve({code: 0});
+        }
+      );
     });
   }
 }

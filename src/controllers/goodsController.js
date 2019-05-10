@@ -142,7 +142,7 @@ class GoodsController extends Utils {
     UserController.userVerify(body.userPhone, body.password).then(async result => {
       if (result.code != 0) return this.sendError(res, result.err);
 
-      let result2 = await goods.changeGoodsStatusById(body.goodsId, 'removed');
+      let result2 = await goods.changeGoodsStatusById(body.goodsId, "removed");
       if (result2.code != 0) return this.sendError(res, result2.err);
 
       // let result2 = await goods.deleteGoodsById(body.goodsId);
@@ -158,8 +158,8 @@ class GoodsController extends Utils {
     });
   }
 
-  async resell(req, res){
-    let result = await goods.changeGoodsStatusById(req.body.goodsId, 'normal');
+  async resell(req, res) {
+    let result = await goods.changeGoodsStatusById(req.body.goodsId, "normal");
     if (result.code != 0) return this.sendError(res, result.err);
     res.send({ code: 0, msg: "上架成功" }).end();
   }
@@ -169,6 +169,7 @@ class GoodsController extends Utils {
     if (result.code != 0) return this.sendError(res, result.err);
     res.send({ code: 0, data: result.data[0], msg: "获取成功" });
   }
+
 }
 
 module.exports = new GoodsController();
