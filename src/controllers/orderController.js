@@ -28,6 +28,7 @@ class OrderController extends Utils {
       console.log(result);
     }
   }
+
   async pay(req, res) {
     let result = await order.getOrderById(req.body.orderId);
     if (result.code == -1) return that.sendError(res, result.err);
@@ -38,6 +39,7 @@ class OrderController extends Utils {
     let url_API = "https://openapi.alipaydev.com/gateway.do?" + url;
     res.send({ code: 0, data: { orderId: orderObj.id, url: url_API } }).end();
   }
+
   static getAmount(goods) {
     let amount = 0;
     goods.forEach(item => {
@@ -45,14 +47,17 @@ class OrderController extends Utils {
     });
     return Number(amount).toFixed(2);
   }
+
   async personalOrder(req, res) {
     let result = await order.getOrderByPhone(req.body.userPhone);
     if (result.code == -1) return that.sendError(res, result.err);
     res.send({ code: 0, data: result.data, msg: "成功" }).end();
   }
+
   async orderCancel(req, res) {
     let result = order.orderStatusChange(orderStatus.fail, req.body.orderId);
-    let result2 = await ali.close({
+    await goods.releaseGoodsByOrder(req.body.orderId);
+    await ali.close({
       outTradeId: req.body.out_trade_no,
       trade_no: req.body.trade_no,
       operator_id: "001"
@@ -60,6 +65,7 @@ class OrderController extends Utils {
     if (result.code == -1) return that.sendError(res, result.err);
     res.send({ code: 0, msg: "成功" }).end();
   }
+
   async addOrder(goodsList, phone, shopId) {
     return new Promise(async resolve => {
       const orderObj = new Order(Utils.getTimestamp(), OrderController.getAmount(goodsList), phone, orderStatus.wait, shopId);
@@ -82,6 +88,7 @@ class OrderController extends Utils {
       );
     });
   }
+  
   async orderCommit(req, res) {
     let that = this;
     let shop = await user.findShopByPhone(req.body.userPhone);
