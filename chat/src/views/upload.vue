@@ -3,8 +3,8 @@
     <div class="step_container">
       <el-steps :active="step" finish-status="success">
         <el-step title="选择分类"></el-step>
-        <el-step title="步骤 2"></el-step>
-        <el-step title="步骤 3">
+        <el-step title="填写作品信息"></el-step>
+        <el-step title="上传作品图片">
           <el-upload
             class="upload-demo"
             :action='baseUrl + "goods/upload"'

@@ -137,7 +137,7 @@
           </el-table>
           <el-row class="table_footer">
             <el-col :span="6" class="sum text-left color_danger">合计： ￥{{editShop ? editShopSum : shopSum}}</el-col>
-            <el-col :span="15" class="text-right" v-if="!editShop">
+            <el-col :span="15" class="text-right" v-if="!editShop && shopList.length > 0">
               <el-button plain
                 type="danger"
                 @click="handleEditShop">编辑</el-button>

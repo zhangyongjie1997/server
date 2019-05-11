@@ -88,7 +88,7 @@ class OrderController extends Utils {
       );
     });
   }
-  
+
   async orderCommit(req, res) {
     let that = this;
     let shop = await user.findShopByPhone(req.body.userPhone);
@@ -148,7 +148,7 @@ class OrderController extends Utils {
 class Order {
   constructor(id = "", amount = "", phone = "", status = "", shop = "") {
     var orderParams = {
-      body: "ttt",
+      body: "给钱",
       subject: "订单支付",
       timeout: "90m",
       sellerId: "",

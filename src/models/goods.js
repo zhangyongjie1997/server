@@ -232,6 +232,11 @@ class Goods extends Utils {
     });
   }
 
+
+  /**
+   * @method 订单进入失败状态后释放相关的作品
+   * @param {*} orderId 
+   */
   releaseGoodsByOrder(orderId){
     let that = this;
     return new Promise(async resolve => {
