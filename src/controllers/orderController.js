@@ -76,12 +76,12 @@ class OrderController extends Utils {
           if(result2.code != 0) throw new Error(result2.err.message);
         },
         async (err) => {
+          let result = await order.addOrder(orderObj);
           if(err){
             result.code = -1;
             result.err = err;
             return resolve(result);
           }
-          let result = await order.addOrder(orderObj);
           result.order = orderObj;
           resolve(result);
         }
