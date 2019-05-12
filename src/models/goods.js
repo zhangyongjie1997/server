@@ -205,7 +205,7 @@ class Goods extends Utils {
   changeGoodsStatusById(id, status = 'normal', orderId){
     return new Promise(async resolve => {
       if(orderId){
-        let result = await db.query("update goods set status=?,order=? where id=?", [goodsStatus[status], id, orderId]);
+        let result = await db.query("update goods set status=?,order2=? where id=?", [goodsStatus[status], orderId, id]);
         if (result[1]) return resolve({ code: -1, err: result[1] });
         return resolve({ code: 0, data: result[0] });
       }else{
@@ -226,7 +226,7 @@ class Goods extends Utils {
 
   getGoodsByOrder(orderId){
     return new Promise(async resolve => {
-      let result = await db.query('select * from goods where order=?', [orderId]);
+      let result = await db.query('select * from goods where order2=?', [orderId]);
       if (result[1]) return resolve({ code: -1, err: result[1] });
       return resolve({ code: 0, data: result[0] });
     });

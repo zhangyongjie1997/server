@@ -13,6 +13,7 @@
               name="avatar"
               class="upload-demo"
               :data="uploadData"
+              :before-upload="beforeAvatarUpload"
               :on-success="avatar_upload_success"
               :action='baseUrl + "user/avatar"'>
               <el-button size="small" type="primary">点击上传</el-button>
@@ -535,6 +536,18 @@ export default {
           that.goodsCount = res.data.count;
         }
       });
+    },
+    beforeAvatarUpload(file){
+      const isJPG = file.type === 'image/jpeg' || file.type === 'image/png';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!');
+      }
+      return isJPG && isLt2M;
     },
     avatar_upload_success(res){
       if(res.code == 0){

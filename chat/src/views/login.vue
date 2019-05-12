@@ -53,7 +53,8 @@ export default {
               utils.setLocalStorage(key,res.data[key])
             }
           }
-          that.$store.commit('setUser', res.data)
+          that.$store.commit('setUser', res.data);
+          this.$message.success('登录成功');
           that.$router.push('/index');
         }
       }).catch();

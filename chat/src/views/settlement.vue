@@ -306,8 +306,9 @@ export default {
       });
     }
   },
-  beforeRouteLeave(){
+  beforeRouteLeave(to, from, next){
     clearTimeout(this.orderPolling);
+    next();
   },
   computed: {
     user() {

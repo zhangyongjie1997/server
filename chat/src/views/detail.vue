@@ -289,7 +289,7 @@ export default {
         id: this.goods.id,
         count: this.goodsNum
       }).then(res => {
-        that.$message(res.msg);
+        that.$message('添加成功');
         if (res.code == 0) that.hadShop = res.data.had;
       });
     },

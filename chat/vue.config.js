@@ -7,8 +7,8 @@ module.exports = {
   //   ? '/production-sub-path/'
   //   : '/',
   //   publicPath: './'
-  devServer: {
-    host: 'zyjbiubiu.cn',
-    port: '8080'
-  }
+  // devServer: {
+  //   host: 'zyjbiubiu.cn',
+  //   port: '8080'
+  // }
 }

@@ -53,6 +53,7 @@ export default {
       }
       register(data).then(res=>{
         if(res.code==0){
+          that.$message.success('注册成功');
           that.$router.push('/login');
         }else{
           that.$message(res.data.msg);
