@@ -155,7 +155,7 @@ class Order {
       outTradeId: Utils.getTimestamp(),
       product_code: "FAST_INSTANT_TRADE_PAY",
       goods_type: "1",
-      return_url: "http://39.107.88.223/personal"
+      return_url: "http://zyjbiubiu.cn/personal"
     };
     this.id = id;
     this.amount = amount;

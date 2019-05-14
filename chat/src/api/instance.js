@@ -3,7 +3,7 @@ import md5 from '../lib/md5.js'
 import utils from '../lib/utils'
 import ElementUI from "element-ui"
 
-let baseURL = '//39.107.88.223/api';
+let baseURL = '//zyjbiubiu.cn/api';
 if(process.env.NODE_ENV != 'production'){
   baseURL = '//localhost:3000/api'
 }

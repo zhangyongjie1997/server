@@ -22,13 +22,13 @@ class GoodsController extends Utils {
   }
   async getIndexList(req, res, next) {
     let that = this;
-    let sort = req.query.sort;
+    let {sort, phone} = req.query;
     let list = await goods.getIndexList();
     let collectList = await user.findCollect(req.query.userPhone);
     let collectListAll = await user.getCollectCount();
     if (list.code == 0) {
       let data = list.data;
-      data = that.collectNum(data, collectListAll);
+      data = that.collectNum(data, collectListAll, phone);
       this.sortList(data, sort);
       setTimeout(() => {
         res.send({ code: 0, msg: "获取成功", data: data.slice(0, 8) }).end();
@@ -122,11 +122,12 @@ class GoodsController extends Utils {
       res.send({ code: 0, data: url });
     }
   }
-  collectNum(dataList, collectList) {
+  collectNum(dataList, collectList, phone) {
     dataList = dataList.map(item => {
       item.collectCount = 0;
       item.collected = collectList.data.some(item2 => {
-        return item2.id == item.id;
+        if(!phone) return false;
+        return item2.phone == phone;
       });
       collectList.data.forEach(item3 => {
         if (item3.id == item.id) {

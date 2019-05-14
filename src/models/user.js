@@ -2,6 +2,7 @@ const db = require("../db/db");
 const Utils = require("../lib/utils");
 const { Shop } = require("../db/mongo");
 const async = require("async");
+const path = require('path');
 const { orderStatus, shopStatus } = require("../lib/config");
 
 class User extends Utils {
@@ -131,7 +132,7 @@ class User extends Utils {
     return new Promise(async (resolve, reject) => {
       let ExtensionName = req.file.mimetype.split("/")[1];
       let tmp_path = req.file.path;
-      let target_path = "uploads/" + req.body.phone;
+      let target_path = path.resolve('', "uploads/" + req.body.phone);
       let file_name = "avatar." + ExtensionName;
       let result = await this.writeSingleFile(target_path, file_name, tmp_path);
       if (result.code == 0) {

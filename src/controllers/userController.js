@@ -90,7 +90,7 @@ class UserController extends Utils {
     let result = await user.uploadAvatar(req);
     let path;
     if (result.code == 0) {
-      path = "//39.107.88.223/api" + result.path.replace("uploads/", "static/");
+      path = "//zyjbiubiu.cn/api" + result.path.replace("uploads/", "static/");
       res
         .send({
           code: 0,
