@@ -69,7 +69,7 @@ class Utils {
       let result = await this.dir_exist_create(target_path);
       if (result.code == 0) {
         const src = fs.createReadStream(tmp_path);
-        const dest = fs.createWriteStream(path.resolve("..", target_path + "/" + decodeURIComponent(file_name)));
+        const dest = fs.createWriteStream(path.resolve("", target_path + "/" + decodeURIComponent(file_name)));
         const a = src.pipe(dest);
         src.on("end", function() {
           resolve({ code: 0, path: a.path.replace("/usr/local/src/server/uploads", "/static").replace("//", "/") });
@@ -98,7 +98,7 @@ class Utils {
   }
   sendError(res, err) {
     console.log(err);
-    res.end(JSON.stringify({ code: -1, msg: err.message }));
+    res.end(JSON.stringify({ code: -1, msg: err ? err.message : '服务器出错了' }));
   }
   getTimestamp(data) {
     if (!data) return new Date().getTime();

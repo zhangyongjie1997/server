@@ -87,7 +87,7 @@ class UserController extends Utils {
     });
   }
   async avatarUpload(req, res, next) {
-    let result = await user.uploadAvatar(req);
+    let result = await this.uploadAvatar(req.file, req.body.phone);
     let path;
     if (result.code == 0) {
       path = "//zyjbiubiu.cn/api" + result.path.replace("uploads/", "static/");
@@ -105,6 +105,26 @@ class UserController extends Utils {
       this.sendError(res, result.err);
     }
   }
+
+  /**
+   *
+   * @param {*} req
+   */
+  uploadAvatar(file, phone) {
+    return new Promise(async (resolve, reject) => {
+      let ExtensionName = file.mimetype.split("/")[1];
+      let tmp_path = file.path;
+      let target_path = "uploads/" + phone;
+      let file_name = "avatar." + ExtensionName;
+      let result = await this.writeSingleFile(target_path, file_name, tmp_path);
+      if (result.code == 0) {
+        resolve({ code: 0, path: result.path });
+      } else {
+        resolve({ code: -1, err: result.err });
+      }
+    });
+  }
+
   async editInfo(req, res, next) {
     let body = req.body;
     let result = await user.updateInfo(body.userPhone, body.phone, body.nick_name);

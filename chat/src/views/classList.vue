@@ -20,7 +20,7 @@
           <router-link tag="div" 
             :to="'/detail?id=' + item.id" class="goods_item pointer"
             v-for="(item, index) in item1" :key="index">
-              <img :src="item.cover" width="100%">
+              <img :src="baseUrl + item.cover" width="100%">
               <div class="item_info">
                 <p class="info_name">{{item.name}}</p>
                 <div>
@@ -37,12 +37,14 @@
   </div>
 </template>
 <script>
+import { baseUrl } from "../lib/config.js";
 import goTop from '../components/goTop.vue';
 import { pay, getGoodsClass, getClassList } from '../api/api.js';
 // import $ from 'jquery';
 export default {
   data() {
     return {
+      baseUrl: baseUrl,
       goodsClasses: [],
       goodsList: [],
       currentClass: 0,

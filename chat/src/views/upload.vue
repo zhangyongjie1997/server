@@ -4,33 +4,16 @@
       <el-steps :active="step" finish-status="success">
         <el-step title="选择分类"></el-step>
         <el-step title="填写作品信息"></el-step>
-        <el-step title="上传作品图片">
-          <el-upload
-            class="upload-demo"
-            :action='baseUrl + "goods/upload"'
-            :limit="3"
-            :data="uploadData"
-            name="avatar"
-          >
-            <el-button
-              size="small"
-              type="primary"
-            >点击上传</el-button>
-            <div
-              slot="tip"
-              class="el-upload__tip"
-            >只能上传jpg/png文件，且不超过500kb</div>
-          </el-upload>
-        </el-step>
+        <el-step title="上传作品图片"></el-step>
       </el-steps>
     </div>
     <div class="content">
       <div class="class_container" v-if="step == 0">
         <div @click="clickClass($event, item.id)" v-for="item in goodsClass" :key="item.id" class="class_item">
-          <img src="../assets/classCover.png" height="100%">
+          <img :src="baseUrl + item.cover" height="100%">
           <div class="item_cover">
             <span>{{item.name}}</span>
-            <p>这是一段描述性的文字</p>
+            <!-- <p>这是一段描述性的文字</p> -->
           </div>
         </div>
       </div>
@@ -62,6 +45,7 @@
               <el-upload
                 class="upload-demo"
                 ref="upload1"
+                :action='baseUrl + "goods/upload"'
                 list-type="picture"
                 :file-list="fileList"
                 :limit="1"
@@ -80,6 +64,7 @@
               <el-upload
                 class="upload-demo"
                 ref="upload2"
+                :action='baseUrl + "goods/upload"'
                 list-type="picture"
                 :file-list="fileList"
                 name="detail"
@@ -212,10 +197,12 @@ export default {
 }
 .class_container .class_item{
   cursor: pointer;
+  width: 195px;
   margin-top: 30px;
   margin-left: 20px;
   height: 130px;
   position: relative;
+  overflow: hidden;
 }
 .class_item .item_cover{
   position: absolute;

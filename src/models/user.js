@@ -124,24 +124,6 @@ class User extends Utils {
     db.query("update user set avatar=(?) where phone=(?)", [path, phone]);
   }
 
-  /**
-   *
-   * @param {*} req
-   */
-  uploadAvatar(req) {
-    return new Promise(async (resolve, reject) => {
-      let ExtensionName = req.file.mimetype.split("/")[1];
-      let tmp_path = req.file.path;
-      let target_path = path.resolve('../', "uploads/" + req.body.phone);
-      let file_name = "avatar." + ExtensionName;
-      let result = await this.writeSingleFile(target_path, file_name, tmp_path);
-      if (result.code == 0) {
-        resolve({ code: 0, path: result.path });
-      } else {
-        resolve({ code: -1, err: result.err });
-      }
-    });
-  }
 
   userWriteSingleFile(req, res, path, avatar) {
     return new Promise(async (resolve, reject) => {

@@ -1,8 +1,8 @@
 [
-  {"id":"1","name":"油画"},
-  {"id":"2","name":"版画"},
-  {"id":"3","name":"雕塑"},
-  {"id":"4","name":"摄影"},
-  {"id":"5","name":"素描"},
-  {"id":"6","name":"书画"}
+  {"id":"1","name":"油画", "cover": "public/goodsClass/youhua.png"},
+  {"id":"2","name":"版画", "cover": "public/goodsClass/banhua.png"},
+  {"id":"3","name":"水彩", "cover": "public/goodsClass/shuicai.png"},
+  {"id":"4","name":"国画", "cover": "public/goodsClass/guohua.png"},
+  {"id":"5","name":"素描", "cover": "public/goodsClass/sumiao.png"},
+  {"id":"6","name":"书法", "cover": "public/goodsClass/shufa.png"}
 ]

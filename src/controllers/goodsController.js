@@ -39,21 +39,80 @@ class GoodsController extends Utils {
   }
   async getIndexImg(req, res, next) {
     let result;
-    const data = await this.getDirInfo(path.resolve(__dirname, "../../public/index/img"));
+    const data = await this.getDirInfo(path.resolve(__dirname, "../../public/index/swiper"));
     if (data.code == 0) {
       result = data.data.map(item => {
-        return "//39.107.88.223/api/public/index/img/" + item;
+        return "public/index/swiper/" + item;
       });
       res.send({ code: 0, msg: "获取成功", data: result }).end();
     }
   }
   async upload(req, res, next) {
-    let result = await goods.addGood(req, res, next);
+    let result = await this.addGood(req.files, req.body.userPhone, req.body, res);
     if (result.code != 0) {
       return this.sendError(res, result.err);
     }
     res.send({ code: 0, msg: "上传成功" }).end();
   }
+
+  uploadSingleFile(req, res, path) {
+    return new Promise(async resolve => {
+      
+      let tmp_path = req.file.path;
+      let target_path = "uploads/" + req.body.phone;
+      let file_name = req.file.originalname;
+
+      let result = await this.writeSingleFile(target_path, file_name, tmp_path);
+      if (result.code == 0) {
+        resolve({ code: 0, path: result.path });
+      } else {
+        resolve({ code: -1, err: result.err });
+      }
+    });
+  }
+
+  addGood(files, phone, data, res) {
+    return new Promise(async resolve => {
+      let cover;
+      const target_path = "uploads/" + phone + "/goods";
+      const result = await this.dir_exist_create(target_path);
+      if (result.code != 0) return this.sendError(res, result.err);
+
+      const result2 = await this.getDirInfo(target_path);
+      if (result2.code != 0) return this.sendError(res, result2.err);
+
+      const goodNo = result2.data.length + 1;
+      const target_path2 = target_path + "/good" + goodNo;
+
+      const result3 = await this.dir_exist_create(target_path2);
+      if (result3.code != 0) return this.sendError(res, result3.err);
+
+      for (const key in files) {
+        const target_path3 = target_path2 + "/" + key;
+        const result4 = await this.dir_exist_create(target_path3);
+
+        if (result4.code != 0) return this.sendError(res, result4.err);
+
+        files[key].forEach(async file => {
+          const tmp_path = file.path;
+          const file_name = file.originalname;
+
+          if (key == "cover") {
+            cover = (target_path3 + "/" + file_name).replace("uploads/", "static/");
+          }
+
+          const result5 = await this.writeSingleFile(target_path3, file_name, tmp_path);
+          if (result5.code != 0) return this.sendError(res, result5.err);
+        });
+      }
+
+      let result6 = await goods.insertGoods(data, goodNo, cover);
+      if (result6.code != 0) return this.sendError(res, result6.err);
+
+      resolve({ code: 0, msg: "上传成功" });
+    });
+  }
+
   async getGoodsClass(req, res, next) {
     let classList = await goods.getGoodsClass();
     if (classList.code != 0) return this.sendError(res, classList.err);

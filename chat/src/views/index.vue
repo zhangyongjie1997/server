@@ -7,7 +7,7 @@
             v-for="item in indexImg"
             :key="item"
           >
-            <img :src="'http://' + item" width="100%">
+            <img :src="baseUrl + item" width="100%">
           </el-carousel-item>
         </el-carousel>
       </el-col>
@@ -22,7 +22,7 @@
       <router-link tag="div" :to="'/detail?id=' + item.id" class="list_item" v-for="(item, index) in goods" :key="index">
         <div class="item_img">
           <a href="javascript:void(0);">
-            <img :src="item.cover" height="185px">
+            <img :src="baseUrl + item.cover" height="185px">
           </a>
         </div>
         <div class="item_info">
@@ -40,10 +40,12 @@
   </div>
 </template>
 <script>
+import { baseUrl } from "../lib/config.js";
 import {getIndexImg, getIndexGoods, collect} from '../api/api.js';
 export default {
   data() {
     return {
+      baseUrl: baseUrl,
       indexImg:[],
       hot:'hot',
       goods:[],
