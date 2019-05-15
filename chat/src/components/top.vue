@@ -16,7 +16,7 @@
       <router-link v-if="!isLogin" to="/login" class="login_btn">登录</router-link>
       <el-row v-if="isLogin">
         <el-col :span="8" class="text_left">
-          <img :src="user.avatar" height="60px" width="60px">
+          <img :src="baseUrl + user.avatar" height="60px" width="60px">
         </el-col>
         <el-col class="text_left loginout pointer" :span="10"><span @click="loginout">退出登录</span></el-col>
       </el-row>
@@ -24,10 +24,12 @@
   </el-row>
 </template>
 <script>
+import { baseUrl } from "../lib/config.js";
 import utils from "../lib/utils.js";
 export default {
   data() {
     return {
+      baseUrl: baseUrl,
       //user: {}
     };
   },

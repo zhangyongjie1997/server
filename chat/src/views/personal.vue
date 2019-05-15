@@ -5,7 +5,7 @@
         <el-row class="avatar" v-line_mid>
           <el-col :span="2"><span>头像</span></el-col>
           <el-col :span="2">
-            <img :src="user.avatar" height="50px">
+            <img :src="baseUrl + user.avatar" height="50px">
           </el-col>
           <el-col :span="4">
             <el-upload
@@ -245,7 +245,6 @@
   </div>
 </template>;
 <script>
-import { baseUrl } from "../lib/config.js";
 import utils from '../lib/utils.js';
 import { orderPay, resellGoods, getPersonalOrder, changePwd, editShopSubmit, getShop, deleteGoods, collect, editPersonalInfo, getCollect, getPersonalGoods, getGoodsClass } from "../api/api.js";
 export default {
@@ -259,7 +258,6 @@ export default {
         token: utils.getLocalStorage('token'),
         phone: utils.getLocalStorage('phone')
       },
-      baseUrl: baseUrl,
       dialogVisible: false,
       userForm: {},
       collectCount: 0,

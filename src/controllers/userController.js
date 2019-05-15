@@ -13,7 +13,7 @@ class UserController extends Utils {
     let data = request.body;
     user.findUserByPhone(data.phone).then(res1 => {
       if (res1.length < 1) {
-        let { phone = "", nick_name = "", password = "", sex = "", avatar = "" } = data;
+        let { phone = "", nick_name = "", password = "", sex = "", avatar = "public/default.png" } = data;
         user
           .addUser([phone, password, nick_name, sex, avatar])
           .then(res2 => {

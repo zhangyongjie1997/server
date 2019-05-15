@@ -1,4 +1,10 @@
+import { baseUrl } from "./lib/config.js";
 export const loginMinix = {
+  data() {
+    return {
+      baseUrl: baseUrl,
+    }
+  },
   computed: {
     isLogin(){
       return this.$store.state.user && this.$store.state.user.phone

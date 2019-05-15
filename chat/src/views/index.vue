@@ -40,12 +40,10 @@
   </div>
 </template>
 <script>
-import { baseUrl } from "../lib/config.js";
 import {getIndexImg, getIndexGoods, collect} from '../api/api.js';
 export default {
   data() {
     return {
-      baseUrl: baseUrl,
       indexImg:[],
       hot:'hot',
       goods:[],
@@ -79,6 +77,7 @@ export default {
       });
     },
     collect(e, id){
+      if (!this.isLogin) return this.$emit("showLogin", true);
       let that = this;
       let target = e.currentTarget || e.target;
       // let id = target.dataset.id;

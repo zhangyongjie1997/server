@@ -37,14 +37,12 @@
   </div>
 </template>
 <script>
-import { baseUrl } from "../lib/config.js";
 import goTop from '../components/goTop.vue';
 import { pay, getGoodsClass, getClassList } from '../api/api.js';
 // import $ from 'jquery';
 export default {
   data() {
     return {
-      baseUrl: baseUrl,
       goodsClasses: [],
       goodsList: [],
       currentClass: 0,

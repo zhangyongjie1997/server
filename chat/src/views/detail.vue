@@ -6,7 +6,7 @@
     </el-row>
     <div class="userInfo_container">
       <div class="userInfo">
-        <img :src="goodsUser.avatar" class="avatar" width="70px" height="70px">
+        <img :src="baseUrl + goodsUser.avatar" class="avatar" width="70px" height="70px">
         <span class="nick_name">{{goodsUser.nick_name}}</span>
       </div>
       <el-button class="fr" @click="$router.go(-1)">返回</el-button>
@@ -14,7 +14,7 @@
     <div class="content_container">
       <div class="left">
         <div class="cover">
-          <img :src="goods.cover" height="100%" width="100%">
+          <img :src="baseUrl + goods.cover" height="100%" width="100%">
         </div>
         <el-row class="collect_container">
           <el-col :span="6">
@@ -70,7 +70,7 @@
         <div v-for="(item, index) in commentList" :key="item.id" class="comment_item_container">
           <el-row :gutter="20" class="comment_item_title">
             <el-col :span="1">
-              <img class="comment_avatar pointer" :src="item.avatar">
+              <img class="comment_avatar pointer" :src="baseUrl + item.avatar">
             </el-col>
             <el-col :offset="0" :span="3" class="comment_item_name pointer">{{item.nick_name}}</el-col>
             <el-col class="comment_item_time text_right" :offset="14" :span="6">{{item.id | dateFormatter}}</el-col>
@@ -92,7 +92,7 @@
               <div v-for="(item2, index2) in item.childComment" :key="index2" class="subcomment_item_container">
                 <el-row>
                   <el-col :span="1">
-                    <img class="subcomment_avatar pointer" :src="item2.avatar">
+                    <img class="subcomment_avatar pointer" :src="baseUrl + item2.avatar">
                   </el-col>
                   <el-col :span="6">
                     <span class="pointer comment_item_name">{{item2.nick_name}}</span>
@@ -262,6 +262,7 @@ export default {
       });
     },
     buyNow() {
+      if (!this.isLogin) return this.$emit("showLogin", true);
       let that = this;
       addShop({
         userPhone: this.$store.state.user.phone,
@@ -283,6 +284,7 @@ export default {
       });
     },
     addShop() {
+      if (!this.isLogin) return this.$emit("showLogin", true);
       let that = this;
       addShop({
         userPhone: this.$store.state.user.phone,
