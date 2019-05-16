@@ -45,7 +45,8 @@
           <el-row class="goods_container">
             <p v-if="goodsList.length == 0" style="font-size:26px;color:#ccc;">您还没有发布过商品 . . .</p>
             <el-row v-line_mid class="collect-item pointer" v-for="(item, index) in goodsList" :key="index">
-              <el-col v-if="goodsList.length > 0" :span="9">
+              <el-col :span="2"><img class="goods_cover" :src="baseUrl + item.cover" width="30px"></el-col>
+              <el-col v-if="goodsList.length > 0" :span="6">
                 <router-link class="collect-link" tag="a" :to="'/detail?id=' + item.id">{{item.name}}</router-link>
               </el-col>
               <el-col :span="4">价格：￥{{item.price}}</el-col>
@@ -74,7 +75,8 @@
       <el-tab-pane name="collect" label="我的收藏">
         <el-row class="pane_goods">
             <el-row v-line_mid class="collect-item pointer" v-for="(item, index) in collectList" :key="index">
-              <el-col :span="11">
+              <el-col :span="2"><img class="goods_cover" :src="baseUrl + item.cover" width="30px"></el-col>
+              <el-col :span="8">
                 <router-link class="collect-link" tag="a" :to="'/detail?id=' + item.id">{{item.name}}</router-link>
               </el-col>
               <el-col :span="4">价格：￥{{item.price}}</el-col>
@@ -102,6 +104,11 @@
             ref="shopTable"
             :data="shopList"
             style="width: 100%">
+            <el-table-column label="" width="100">
+              <template slot-scope="scope">
+                <img :src="baseUrl + scope.row.cover" width="40px">
+              </template>
+            </el-table-column>
             <el-table-column prop="name" label="商品名" width="180">
             </el-table-column>
             <el-table-column align="center" prop="price" :formatter="priceFormatter"
@@ -641,6 +648,9 @@ export default {
 .main{
   width: 80%;
   margin: 50px auto 0;
+}
+.goods_cover{
+  transform: translateY(30%);
 }
 .avatar{
   height: 50px;

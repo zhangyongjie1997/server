@@ -202,6 +202,13 @@ export default {
   border: 1px solid #fff;
   transition: all .2s ease;
   box-shadow: 0 2px 7px 0 rgba(0, 0, 0, .2);
+  overflow: hidden;
+}
+.goods_item img{
+  transition: all .2s ease-in-out;
+}
+.goods_item:hover img{
+  transform: scale(1.1);
 }
 .item_info{
   height: 60px;
