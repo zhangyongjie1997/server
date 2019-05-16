@@ -35,7 +35,8 @@ export default new Router({
       name: "home",
       component: () => import('./views/index.vue'),
       meta:{
-        title:'首页'
+        title:'首页',
+        keepAlive: true
       }
     },
     {
@@ -47,11 +48,20 @@ export default new Router({
       }
     },
     {
+      path: "/order",
+      name: "order",
+      component: () => import('./views/order.vue'),
+      meta:{
+        title:'订单信息',
+      }
+    },
+    {
       path: "/classList",
       name: "classList",
       component: () => import('./views/classList.vue'),
       meta:{
-        title:'分类'
+        title:'分类',
+        keepAlive: true
       }
     },
     {
@@ -75,7 +85,8 @@ export default new Router({
       name: "index",
       component: () => import('./views/index.vue'),
       meta:{
-        title:'首页'
+        title:'首页',
+        keepAlive: true
       }
     },
   ]

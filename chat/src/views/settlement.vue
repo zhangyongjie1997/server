@@ -40,7 +40,7 @@
             <el-button plain @click.stop="handleEditShopCancel">取消</el-button>
           </el-col>
         </el-row>
-        <div class="addressInfo">
+        <div class="addressInfo" v-if="shopList.length > 0">
           <h2>填写订单信息</h2>
           <el-form ref="addressForm" :model="address" :rules="rules">
             <el-form-item size="medium" label="姓名" prop="name">
@@ -52,19 +52,19 @@
             <el-form-item size="medium" label="选择地区">
               <el-row :gutter="20">
                 <el-col :span="6">
-                  <el-select @change="provinceChange" v-model="province" placeholder="省">
-                    <el-option v-for="item in provinces" :key="item.value" :label="item.label" :value="item.value">
+                  <el-select ref="provinceName" @change="provinceChange" v-model="province" placeholder="省">
+                    <el-option v-for="item in provinces" :key="item.value" :label="item.label + '省'" :value="item.value">
                     </el-option>
                   </el-select>
                 </el-col>
                 <el-col :span="6">
-                  <el-select @change="cityChange" v-model="city" placeholder="市">
+                  <el-select ref="cityName" @change="cityChange" v-model="city" placeholder="市">
                     <el-option v-for="item in citise" :key="item.value" :label="item.label" :value="item.value">
                     </el-option>
                   </el-select>
                 </el-col>
                 <el-col :span="6">
-                  <el-select v-model="area" placeholder="区 / 县">
+                  <el-select ref="areaName" v-model="area" placeholder="区 / 县">
                     <el-option v-for="item in areas" :key="item.value" :label="item.label" :value="item.value">
                     </el-option>
                   </el-select>
@@ -81,11 +81,12 @@
     </transition>
     <transition name="el-zoom-in-center">
       <el-row class="" v-if="orderStep == 2">
-        <el-card class="order_success color_success">
+        <div class="order_success color_success">
           <i class="el-icon-success"></i> 提交成功
           <span class="back" @click="orderPay">去支付</span> /
           <span class="back cancel" @click="orderCancel">取消订单</span>
-        </el-card>
+        </div>
+        <p style="color:#f56c6c;">请在15分钟内完成支付！</p>
       </el-row>
     </transition>
     <transition name="el-zoom-in-center">
@@ -195,9 +196,15 @@ export default {
       this.$refs["addressForm"].validate(valid => {
         if (valid) {
           if (!that.area) {
-            this.$message.error("请选择城市");
+            that.$message.error("请选择城市");
           }
-          orderCommit({ userPhone: this.$store.state.user.phone }).then(res => {
+          orderCommit({
+            userPhone: that.$store.state.user.phone,
+            address: {
+              area: that.$refs["provinceName"].selectedLabel + that.$refs["cityName"].selectedLabel + that.$refs["areaName"].selectedLabel,
+              ...that.address
+            }
+          }).then(res => {
             that.orderStep = 2;
             that.order = res.data;
             // that.orderStatusPolling();
@@ -235,7 +242,6 @@ export default {
     },
     colSumFormatter(row, column, cellValue, index) {
       return "￥" + (row.price * row.shopCount).toFixed(2);
-      console.log(row);
     },
     priceFormatter(row, column, cellValue, index) {
       return "￥" + Number(cellValue).toFixed(2);
@@ -306,7 +312,7 @@ export default {
       });
     }
   },
-  beforeRouteLeave(to, from, next){
+  beforeRouteLeave(to, from, next) {
     clearTimeout(this.orderPolling);
     next();
   },

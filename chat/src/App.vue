@@ -2,7 +2,10 @@
   <div id="app">
     <top v-if="$route.path != '/login' && $route.path != '/register'"></top>
     <loginModel @showLogin="loginModle" :odialogVisible="showLoginModle"></loginModel>
-    <router-view @showLogin="loginModle" />
+    <keep-alive>
+      <router-view @showLogin="loginModle" v-if="$route.meta.keepAlive"></router-view>
+    </keep-alive>
+    <router-view @showLogin="loginModle" v-if="!$route.meta.keepAlive"></router-view>
   </div>
 </template>
 <script>

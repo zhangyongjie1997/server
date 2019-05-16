@@ -22,13 +22,13 @@ class GoodsController extends Utils {
   }
   async getIndexList(req, res, next) {
     let that = this;
-    let {sort, phone} = req.query;
+    let {sort, userPhone = 0} = req.query;
     let list = await goods.getIndexList();
-    let collectList = await user.findCollect(req.query.userPhone);
+    let collectList = await user.findCollect(userPhone);
     let collectListAll = await user.getCollectCount();
     if (list.code == 0) {
       let data = list.data;
-      data = that.collectNum(data, collectListAll, phone);
+      data = that.collectNum(data, collectListAll.data, collectList.data,userPhone);
       this.sortList(data, sort);
       setTimeout(() => {
         res.send({ code: 0, msg: "获取成功", data: data.slice(0, 8) }).end();
@@ -37,6 +37,23 @@ class GoodsController extends Utils {
       this.sendError(res, list.err);
     }
   }
+
+  collectNum(dataList, collectList = [], userCollect = []) {
+    dataList = dataList.map(item => {
+      item.collectCount = 0;
+      item.collected = userCollect.some(item2 => {
+        return item2.id == item.id;
+      });
+      collectList.forEach(item3 => {
+        if (item3.id == item.id) {
+          item.collectCount = item3.count;
+        }
+      });
+      return item;
+    });
+    return dataList;
+  }
+
   async getIndexImg(req, res, next) {
     let result;
     const data = await this.getDirInfo(path.resolve(__dirname, "../../public/index/swiper"));
@@ -141,7 +158,7 @@ class GoodsController extends Utils {
     this.sortList(classList.data, req.query.sort);
     if (classList.code != 0) return this.sendError(res, classList.err);
     let collectListAll = await user.getCollectCount();
-    classList.data = that.collectNum(classList.data, collectListAll);
+    classList.data = that.collectNum(classList.data, collectListAll.data);
     res.send({ code: 0, msg: "获取成功", data: classList.data || [] }).end();
   }
   async getGoodsListByPhone(req, res, next) {
@@ -181,22 +198,7 @@ class GoodsController extends Utils {
       res.send({ code: 0, data: url });
     }
   }
-  collectNum(dataList, collectList, phone) {
-    dataList = dataList.map(item => {
-      item.collectCount = 0;
-      item.collected = collectList.data.some(item2 => {
-        if(!phone) return false;
-        return item2.phone == phone;
-      });
-      collectList.data.forEach(item3 => {
-        if (item3.id == item.id) {
-          item.collectCount = item3.count;
-        }
-      });
-      return item;
-    });
-    return dataList;
-  }
+
   deleteGoods(req, res) {
     let body = req.body;
     UserController.userVerify(body.userPhone, body.password).then(async result => {

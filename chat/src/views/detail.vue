@@ -229,7 +229,7 @@ export default {
         userPhone: this.$store.state.user.phone,
         supComment: ""
       }).then(res => {
-        that,comment = '';
+        that.comment = '';
         that.getComment();
       });
     },
@@ -306,7 +306,8 @@ export default {
           that.judgeCollect();
           that.shopHadGoods();
         }
-        getUserByPhone({ userPhone: that.goods.phone }).then(res => {
+        console.log(that.goods);
+        getUserByPhone({ phoneNum: that.goods.phone }).then(res => {
           if (res.code != 0) return that.$message.error(res.msg);
           that.goodsUser = res.data;
         });

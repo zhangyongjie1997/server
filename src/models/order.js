@@ -5,7 +5,7 @@ const user = require('./user');
 class Order {
   addOrder(order) {
     return new Promise(async resolve => {
-      let result = await db.query("insert into order2 values(?,?,?,?,?)", [order.id, order.amount, order.phone, order.status, order.shop]);
+      let result = await db.query("insert into order2 values(?,?,?,?,?,?)", [order.id, order.amount, order.phone, order.status, order.shop, order.address]);
       if (result[1]) return resolve({ code: -1, err: result[1] });
       await user.changeShopStatus(order.shop, 'booked');
       resolve({ code: 0, data: result[0] });

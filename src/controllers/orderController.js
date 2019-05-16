@@ -31,7 +31,7 @@ class OrderController extends Utils {
 
   async pay(req, res) {
     let result = await order.getOrderById(req.body.orderId);
-    if (result.code == -1) return that.sendError(res, result.err);
+    if (result.code == -1) return this.sendError(res, result.err);
     let orderInfo = result.data[0];
     const orderObj = new Order(orderInfo.id, orderInfo.amount, orderInfo.phone, orderInfo.status);
     let payParams = orderObj.getParams();
@@ -50,25 +50,21 @@ class OrderController extends Utils {
 
   async personalOrder(req, res) {
     let result = await order.getOrderByPhone(req.body.userPhone);
-    if (result.code == -1) return that.sendError(res, result.err);
+    if (result.code == -1) return this.sendError(res, result.err);
     res.send({ code: 0, data: result.data, msg: "成功" }).end();
   }
 
   async orderCancel(req, res) {
-    let result = order.orderStatusChange(orderStatus.fail, req.body.orderId);
+    let result = await order.orderStatusChange(req.body.orderId, orderStatus.fail);
+
     await goods.releaseGoodsByOrder(req.body.orderId);
-    await ali.close({
-      outTradeId: req.body.out_trade_no,
-      trade_no: req.body.trade_no,
-      operator_id: "001"
-    });
-    if (result.code == -1) return that.sendError(res, result.err);
+    if (result.code != 0) return this.sendError(res, result.err);
     res.send({ code: 0, msg: "成功" }).end();
   }
 
-  async addOrder(goodsList, phone, shopId) {
+  async addOrder(goodsList, phone, shopId, address) {
     return new Promise(async resolve => {
-      const orderObj = new Order(Utils.getTimestamp(), OrderController.getAmount(goodsList), phone, orderStatus.wait, shopId);
+      const orderObj = new Order(Utils.getTimestamp(), OrderController.getAmount(goodsList), phone, orderStatus.wait, shopId, address);
       async.eachSeries(
         goodsList,
         async goodsItem => {
@@ -90,7 +86,7 @@ class OrderController extends Utils {
   }
 
   async orderCommit(req, res) {
-    let that = this;
+    let that = this, address = req.body.address;
     let shop = await user.findShopByPhone(req.body.userPhone);
     if (shop.code == -1) return this.sendError(res, shop.err);
     let idList = shop.data.idList,
@@ -104,12 +100,31 @@ class OrderController extends Utils {
         goodsList.push(goodsItem.data[0]);
       },
       async () => {
-        let result = await that.addOrder(goodsList, req.body.userPhone, shop.data.id);
+        let result = await that.addOrder(goodsList, req.body.userPhone, shop.data.id, address);
         if (result.code == -1) return that.sendError(res, result.err);
         that.startOrderJob(result.order.id);
         return res.send({ code: 0, data: result.order, msg: "成功" }).end();
       }
     );
+  }
+
+  getShopGoods(idList){
+    return new Promise(resolve => {
+      let goodsList = [];
+      async.eachSeries(
+        idList,
+        async idItem => {
+          let goodsItem = await goods.getGoodsById(idItem.id);
+          if (goodsItem.code == -1) throw new Error(goodsItem.err.message);
+          goodsItem.data[0].shopCount = idItem.count;
+          goodsList.push(goodsItem.data[0]);
+        },
+        (err) => {
+          if(err) return resolve({code: -1, err});
+          return resolve({ code: 0, data: goodsList});
+        }
+      );
+    });
   }
 
   startOrderJob(orderId){  //15分钟后判断订单是否超时
@@ -128,6 +143,11 @@ class OrderController extends Utils {
 
       async function changeStatus(callback){
         await order.orderStatusChange(orderStatus.fail, orderObj.id);
+        // await ali.close({
+        //   outTradeId: req.body.out_trade_no,
+        //   trade_no: req.body.trade_no,
+        //   operator_id: "001"
+        // });
         callback(null);
       }
 
@@ -143,10 +163,27 @@ class OrderController extends Utils {
     if (result.code == -1) return this.sendError(res, result.err);
     return res.send({ code: 0, data: result.data[0] }).end();
   }
+
+  async getOrderDetail(req, res){
+    let orderId = req.body.orderId;
+    let result = await order.getOrderById(orderId);
+    if (result.code == -1) return this.sendError(res, result.err);
+
+    let orderInfo = result.data[0];
+    let result2 = await user.findShopById(orderInfo.shop);
+    if (result2.code == -1) return this.sendError(res, result.err);
+
+    let shopInfo = result2.data, goodsList = [];
+    let result3 = await this.getShopGoods(shopInfo.idList);
+    if (result3.code == -1) return this.sendError(res, result.err);
+
+    orderInfo.goods = result3.data;
+    res.send({code: 0, data: orderInfo, msg: '成功'});
+  }
 }
 
 class Order {
-  constructor(id = "", amount = "", phone = "", status = "", shop = "") {
+  constructor(id = "", amount = "", phone = "", status = "", shop = "", address = "") {
     var orderParams = {
       body: "给钱",
       subject: "订单支付",
@@ -162,6 +199,7 @@ class Order {
     this.phone = phone;
     this.status = status;
     this.shop = shop;
+    this.address = typeof address == 'string' ? address : JSON.stringify(address);
     this.getParams = function() {
       return {
         ...orderParams,

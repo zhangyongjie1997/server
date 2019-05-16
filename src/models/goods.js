@@ -131,7 +131,7 @@ class Goods extends Utils {
 
   getGoodsById(id) {
     return new Promise(async resolve => {
-      let result = await db.query("select * from goods where id=?", [id]);
+      let result = await db.query("select goods.*,user.* from goods join user on (goods.phone=user.phone) where goods.id=?", [id]);
       if (result[1]) return resolve({ code: -1, err: result[1] });
       return resolve({ code: 0, data: result[0] });
     });

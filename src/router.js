@@ -98,6 +98,8 @@ router.post('/order/cancel', orderController.orderCancel.bind(orderController));
 router.post('/order/personalOrder', orderController.personalOrder.bind(orderController));
 //获取订单状态
 router.post('/user/orderStatus', orderController.getOrderStatus.bind(orderController));
+//获取订单详情
+router.post('/user/orderDetail', orderController.getOrderDetail.bind(orderController));
 //添加评论
 router.post('/user/comment/create', userController.createComment.bind(userController));
 //第一层回复

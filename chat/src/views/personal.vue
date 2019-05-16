@@ -167,12 +167,26 @@
           </el-table-column>
           <el-table-column align="center" :formatter="statusFormatter" prop="status" label="状态" width="180">
           </el-table-column>
-          <el-table-column label="操作" align="center" width="400">
+          <el-table-column label="操作" align="center" width="300">
             <template slot-scope="scope">
               <el-button
                 v-show="scope.row.status == 2"
                 size="mini"
                 @click="goPay($event ,scope.row.id)">去支付</el-button>
+              <el-button
+                v-show="scope.row.status == 2"
+                size="mini"
+                @click="cancelOrder($event, scope.row.id)">取消订单</el-button>
+              <span disabled v-if="scope.row.status == -1">已失效</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="" align="center" width="100">
+            <template slot-scope="scope">
+              <el-button
+                style="color:#1989fa;"
+                size="mini"
+                type="text"
+                @click="$router.push('/order?id=' + scope.row.id)">查看</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -246,7 +260,7 @@
 </template>;
 <script>
 import utils from '../lib/utils.js';
-import { orderPay, resellGoods, getPersonalOrder, changePwd, editShopSubmit, getShop, deleteGoods, collect, editPersonalInfo, getCollect, getPersonalGoods, getGoodsClass } from "../api/api.js";
+import { orderCancel, orderPay, resellGoods, getPersonalOrder, changePwd, editShopSubmit, getShop, deleteGoods, collect, editPersonalInfo, getCollect, getPersonalGoods, getGoodsClass } from "../api/api.js";
 export default {
   data() {
     return {
@@ -294,6 +308,16 @@ export default {
     window.addEventListener('visibilitychange', this.visibilityChange);
   },
   methods: {
+    cancelOrder(e, id) {
+      let that = this;
+      orderCancel({
+        orderId: id,
+        userPhone: this.$store.state.user.phone
+      }).then(res => {
+        if (res.code != 0) return that.$message.error(res.msg);
+        that.getPersonalOrder();
+      });
+    },
     visibilityChange(){
       if (document.visibilityState == "visible") this.getPersonalOrder();
     },
@@ -337,7 +361,7 @@ export default {
       let that = this;
       getPersonalOrder({userPhone: this.$store.state.user.phone}).then(res => {
         if(res.code != 0) return that.$message.error(res.msg);
-        that.myOrders = res.data;
+        that.myOrders = res.data.reverse();
       });
     },
     getSubmitShopList(){

@@ -136,6 +136,9 @@ export let editShopSubmit = (data) => {
 export let orderCommit = (data) => {
   return axios.post('/user/orderCommit', data);
 }
+export let getOrderDetail = (data) => {
+  return axios.post('/user/orderDetail', data);
+}
 export let orderStatus = (data) => {
   return axios.post('/user/orderStatus', data);
 }

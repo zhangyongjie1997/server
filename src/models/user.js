@@ -21,7 +21,7 @@ class User extends Utils {
 
   addUser(data) {
     return new Promise(async (resolve, reject) => {
-      let res = await db.query("insert into user values(?,?,?,?,?)", data);
+      let res = await db.query("insert into user values(?,?,?,?,?,?)", data);
       if (res[1]) return reject(res[1]);
       let newUserList = await this.findUserByPhone(data[0]);
       resolve(newUserList[0]);
@@ -153,6 +153,20 @@ class User extends Utils {
         {
           phone,
           status: shopStatus[status]
+        },
+        (err, result) => {
+          if (err) return resolve({ code: -1, err });
+          return resolve({ code: 0, data: result });
+        }
+      );
+    });
+  }
+
+  findShopById(shopId){
+    return new Promise(resolve => {
+      Shop.findOne(
+        {
+          id: shopId
         },
         (err, result) => {
           if (err) return resolve({ code: -1, err });

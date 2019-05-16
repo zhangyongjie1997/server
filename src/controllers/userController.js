@@ -10,12 +10,12 @@ class UserController extends Utils {
     super();
   }
   register(request, response, next) {
-    let data = request.body;
+    let data = request.body, that = this;
     user.findUserByPhone(data.phone).then(res1 => {
       if (res1.length < 1) {
         let { phone = "", nick_name = "", password = "", sex = "", avatar = "public/default.png" } = data;
         user
-          .addUser([phone, password, nick_name, sex, avatar])
+          .addUser([phone, password, nick_name, sex, avatar, that.getDateTime()])
           .then(res2 => {
             if (res2) {
               response.end(
@@ -90,16 +90,15 @@ class UserController extends Utils {
     let result = await this.uploadAvatar(req.file, req.body.phone);
     let path;
     if (result.code == 0) {
-      path = "//zyjbiubiu.cn/api" + result.path.replace("uploads/", "static/");
-      res
-        .send({
-          code: 0,
-          msg: "上传成功",
-          data: {
-            path
-          }
-        })
-        .end();
+      path = result.path.replace("uploads/", "static/");
+      if(path.indexOf('\\') != -1){
+        path = 'static/' + req.body.phone + '/' + result.file_name;
+      }
+      res.send({
+        code: 0,
+        msg: "上传成功",
+        data: { path }
+      }).end();
       user.updateAvatar(path, req.body.phone);
     } else {
       this.sendError(res, result.err);
@@ -118,7 +117,7 @@ class UserController extends Utils {
       let file_name = "avatar." + ExtensionName;
       let result = await this.writeSingleFile(target_path, file_name, tmp_path);
       if (result.code == 0) {
-        resolve({ code: 0, path: result.path });
+        resolve({ code: 0, path: result.path, file_name });
       } else {
         resolve({ code: -1, err: result.err });
       }
@@ -153,7 +152,7 @@ class UserController extends Utils {
     res.send({ code: 0, data: { collect: result.data.length }, msg: "获取成功" }).end();
   }
   async getUserByPhone(req, res) {
-    let userInfo = await user.findUserByPhone(req.body.userPhone);
+    let userInfo = await user.findUserByPhone(req.body.phoneNum);
     if (userInfo.length == 0) return this.sendError({ res, err: { message: "用户不存在" } });
     res.send({ code: 0, data: userInfo[0], msg: "获取成功" }).end();
   }
