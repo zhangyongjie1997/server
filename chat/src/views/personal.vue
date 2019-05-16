@@ -571,7 +571,7 @@ export default {
       const isLt2M = file.size / 1024 / 1024 < 2;
 
       if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!');
+        this.$message.error('选择的文件不是正确的图片格式!');
       }
       if (!isLt2M) {
         this.$message.error('上传头像图片大小不能超过 2MB!');
@@ -617,6 +617,28 @@ export default {
           that.dialogVisible = false
         }
       })
+    }
+  },
+  watch: {
+    $route(val){
+      if(this.$route.path == '/personal'){
+        let tab = this.$route.query.tab;
+        this.activeTab = tab;
+        switch(true){
+          case tab == 'collect':
+            this.getCollect();
+            break;
+          case tab == 'goods':
+            this.getPersonalGoods();
+            break;
+          case tab == 'order':
+            this.getPersonalOrder();
+            break;
+          case tab == 'shop':
+            this.getShop();
+            break;
+        }
+      }
     }
   },
   beforeRouteLeave(to, from, next){

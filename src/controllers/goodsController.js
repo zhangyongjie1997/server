@@ -154,12 +154,13 @@ class GoodsController extends Utils {
   }
   async getListByClass(req, res, next) {
     let that = this;
-    let classList = await goods.getListByClass(req.query.goodsClass);
-    this.sortList(classList.data, req.query.sort);
-    if (classList.code != 0) return this.sendError(res, classList.err);
+    let result = await goods.getListByClass(req.query.goodsClass);
+    if (result.code != 0) return this.sendError(res, classList.err);
+    let classList = result.data;
     let collectListAll = await user.getCollectCount();
-    classList.data = that.collectNum(classList.data, collectListAll.data);
-    res.send({ code: 0, msg: "获取成功", data: classList.data || [] }).end();
+    classList = that.collectNum(classList, collectListAll.data);
+    this.sortList(classList, req.query.sort);
+    res.send({ code: 0, msg: "获取成功", data: classList || [] }).end();
   }
   async getGoodsListByPhone(req, res, next) {
     let that = this;

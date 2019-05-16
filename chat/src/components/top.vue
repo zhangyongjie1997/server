@@ -15,10 +15,34 @@
     <el-col :span="4" class="full-height" v-line_mid>
       <router-link v-if="!isLogin" to="/login" class="login_btn">登录</router-link>
       <el-row v-if="isLogin">
-        <el-col :span="8" class="text_left">
-          <img :src="baseUrl + user.avatar" height="60px" width="60px">
+        <el-col :span="8" class="text_left pointer">
+          <el-dropdown>
+            <img :src="baseUrl + user.avatar" height="60px" width="60px">
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>
+                <span @click="changeTab('info')">个人信息</span>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <span @click="changeTab('goods')">我的商品</span>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <span @click="changeTab('collect')">我的收藏</span>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <span @click="changeTab('shop')">购物车</span>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <span @click="changeTab('order')">我的订单</span>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <span @click="loginout">退出登录</span>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </el-col>
-        <el-col class="text_left loginout pointer" :span="10"><span @click="loginout">退出登录</span></el-col>
+        <el-col class="text_left loginout pointer" :span="10">
+          <span>{{user.nick_name}}</span>
+        </el-col>
       </el-row>
     </el-col>
   </el-row>
@@ -45,6 +69,14 @@ export default {
     //this.user = this.$store.state.user;
   },
   methods: {
+    changeTab(tab){
+      let path = '/personal?tab=' + tab;
+      if(this.$route.path == '/personal'){
+        this.$router.replace(path);
+      }else{
+        this.$router.push(path);
+      }
+    },
     loginout() {
       this.$store.commit("loginout");
       console.log(this.$router);

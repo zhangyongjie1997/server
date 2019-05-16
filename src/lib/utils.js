@@ -143,7 +143,7 @@ class Utils {
   getDateTime() {
     return this.formatDate(new Date(), "yyyy-MM-dd hh:mm:ss");
   }
-  sortList(list = [], sort) {
+  sortList(list = [], sort = "new") {
     if (sort && sort == "new") {
       list.sort((a, b) => {
         if (this.getTimestamp(a.time) > this.getTimestamp(b.time)) return -1;

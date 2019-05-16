@@ -1,6 +1,7 @@
 <template>
   <div class="main">
     <goTop></goTop>
+    <goShop></goShop>
     <div class="topBar">
       <div class="classList text-left">
         <div ref="classTab0" @click="changeClass($event, '0')" v-line_mid class="classItem pointer active text-center">全部</div>
@@ -38,6 +39,7 @@
 </template>
 <script>
 import goTop from '../components/goTop.vue';
+import goShop from '../components/goShop.vue';
 import { pay, getGoodsClass, getClassList } from '../api/api.js';
 // import $ from 'jquery';
 export default {
@@ -61,7 +63,7 @@ export default {
     };
   },
   components:{
-    goTop
+    goTop, goShop
   },
   created(){
     let that = this;
