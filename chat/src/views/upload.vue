@@ -102,7 +102,7 @@ export default {
         token: utils.getLocalStorage('token'),
         phone: utils.getLocalStorage('phone')
       },
-      step: 2,
+      step: 0,
       goodsClass:[],
       classId: Number,
       goods: {},

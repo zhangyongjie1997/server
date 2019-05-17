@@ -100,6 +100,8 @@ router.post('/order/personalOrder', orderController.personalOrder.bind(orderCont
 router.post('/user/orderStatus', orderController.getOrderStatus.bind(orderController));
 //获取订单详情
 router.post('/user/orderDetail', orderController.getOrderDetail.bind(orderController));
+//获取订单以及出售的商品的信息
+router.post('/user/getSelledOrder', goodsController.getSelled.bind(goodsController));
 //添加评论
 router.post('/user/comment/create', userController.createComment.bind(userController));
 //第一层回复

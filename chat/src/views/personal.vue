@@ -45,7 +45,9 @@
           <el-row class="goods_container">
             <p v-if="goodsList.length == 0" style="font-size:26px;color:#ccc;">您还没有发布过商品 . . .</p>
             <el-row v-line_mid class="collect-item pointer" v-for="(item, index) in goodsList" :key="index">
-              <el-col :span="2"><img class="goods_cover" :src="baseUrl + item.cover" width="30px"></el-col>
+              <el-col :span="2">
+                <router-link :to="'/detail?id=' + item.id" tag="img" class="goods_cover pointer" :src="baseUrl + item.cover" width="30px"/>
+              </el-col>
               <el-col v-if="goodsList.length > 0" :span="6">
                 <router-link class="collect-link" tag="a" :to="'/detail?id=' + item.id">{{item.name}}</router-link>
               </el-col>
@@ -54,8 +56,8 @@
               <el-col class="text-right" :span="6">发布时间：{{item.time}}</el-col>
               <el-col class="text-center" :span="3">
                 <el-button v-show="item.status==0" plain @click="delDialogVisible = true;clickGoodsId = item.id;" type="danger" size="mini">取消上架</el-button>
-                <el-button v-show="item.status==-1" @click="delDialogVisible2 = true;clickGoodsId = item.id;" @mouseenter.native="removedMouseenter" @mouseout.native="removedMouseout" plain size="mini">已下架</el-button>
-                <el-button v-show="item.status==1" plain size="mini">已售出</el-button>
+                <el-button v-show="item.status==-1" @click="delDialogVisible2 = true;clickGoodsId = item.id;" @mouseenter.native="removedMouseenter" @mouseleave="removedMouseout" plain size="mini">已下架</el-button>
+                <el-button v-show="item.status==1" @click="goOrder($event, item)" @mouseenter.native="selledMouseenter" @mouseleave.native="selledMouseout" plain size="mini">已售出</el-button>
               </el-col>
             </el-row>
           <div class="block pagination_container">
@@ -75,7 +77,7 @@
       <el-tab-pane name="collect" label="我的收藏">
         <el-row class="pane_goods">
             <el-row v-line_mid class="collect-item pointer" v-for="(item, index) in collectList" :key="index">
-              <el-col :span="2"><img class="goods_cover" :src="baseUrl + item.cover" width="30px"></el-col>
+              <el-col :span="2"><router-link :to="'/detail?id=' + item.id" tag="img" class="goods_cover pointer" :src="baseUrl + item.cover" width="30px"/></el-col>
               <el-col :span="8">
                 <router-link class="collect-link" tag="a" :to="'/detail?id=' + item.id">{{item.name}}</router-link>
               </el-col>
@@ -106,7 +108,7 @@
             style="width: 100%">
             <el-table-column label="" width="100">
               <template slot-scope="scope">
-                <img :src="baseUrl + scope.row.cover" width="40px">
+                <router-link :to="'/detail?id=' + scope.row.id" tag="img" :src="baseUrl + scope.row.cover" class="pointer" width="40px"/>
               </template>
             </el-table-column>
             <el-table-column prop="name" label="商品名" width="180">
@@ -315,6 +317,10 @@ export default {
     window.addEventListener('visibilitychange', this.visibilityChange);
   },
   methods: {
+    goOrder(e, goods){
+      let path = '/order?from=goods&goods=' + goods.id;
+      this.$router.push(path);
+    },
     cancelOrder(e, id) {
       let that = this;
       orderCancel({
@@ -350,6 +356,12 @@ export default {
           that.getPersonalGoods();
         });
       });
+    },
+    selledMouseenter(e){
+      e.target.innerText = '查看订单';
+    },
+    selledMouseout(e){
+      e.target.innerText = '已售出';
     },
     removedMouseenter(e){
       e.target.innerText = '重新上架';

@@ -30,19 +30,19 @@ axios.interceptors.request.use(
       }
       
       config.data = Qs.stringify({
-        ...config.data,
         userPhone: utils.getLocalStorage('phone') || '',
         timestamp: Date.parse(new Date()) / 1000,
         token,
-        sign: token ? md5(token + "h5openVip") : ""
+        sign: token ? md5(token + "h5openVip") : "",
+        ...config.data,
       });
     } else if (config.method == "get") {
       config.params = {
-        ...config.data,
         userPhone: utils.getLocalStorage('phone') || '',
         timestamp: Date.parse(new Date()) / 1000,
         token,
-        sign: token ? md5(token + "h5openVip") : ""
+        sign: token ? md5(token + "h5openVip") : "",
+        ...config.data,
       };
     }
     return config;
@@ -165,6 +165,9 @@ export let getComment0 = (data) => {
 }
 export let getComment = (data) => {
   return axios.post('/user/getComment', data);
+}
+export let getSelledOrder = (data) => {
+  return axios.post('/user/getSelledOrder', data);
 }
 
 

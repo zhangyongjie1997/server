@@ -145,13 +145,13 @@ class Goods extends Utils {
     });
   }
 
-  changeGoodsStatusById(id, status = 'normal', orderId){
+  changeGoodsStatusById(id, status = 'normal', orderId) {
     return new Promise(async resolve => {
-      if(orderId){
+      if (orderId) {
         let result = await db.query("update goods set status=?,order2=? where id=?", [goodsStatus[status], orderId, id]);
         if (result[1]) return resolve({ code: -1, err: result[1] });
         return resolve({ code: 0, data: result[0] });
-      }else{
+      } else {
         let result = await db.query("update goods set status=? where id=?", [goodsStatus[status], id]);
         if (result[1]) return resolve({ code: -1, err: result[1] });
         return resolve({ code: 0, data: result[0] });
@@ -159,7 +159,7 @@ class Goods extends Utils {
     });
   }
 
-  removeGoodsById(id){
+  removeGoodsById(id) {
     return new Promise(async resolve => {
       let result = await db.query("update goods set status=? where id=?", [goodsStatus.removed, id]);
       if (result[1]) return resolve({ code: -1, err: result[1] });
@@ -167,9 +167,25 @@ class Goods extends Utils {
     });
   }
 
-  getGoodsByOrder(orderId){
+  getGoodsByOrder(orderId) {
     return new Promise(async resolve => {
       let result = await db.query('select * from goods where order2=?', [orderId]);
+      if (result[1]) return resolve({ code: -1, err: result[1] });
+      return resolve({ code: 0, data: result[0] });
+    });
+  }
+
+  getOrderByGoods(goodsId) {
+    return new Promise(async resolve => {
+      let result = await db.query('select * from order2 where id in (select order2 from goods where id=?)', [goodsId]);
+      if (result[1]) return resolve({ code: -1, err: result[1] });
+      return resolve({ code: 0, data: result[0] });
+    });
+  }
+
+  getSelledGoods(goodsId, phone) {
+    return new Promise(async resolve => {
+      let result = await db.query('select * from goods join user on (user.phone=goods.phone) where goods.order2 in (select order2 from goods where id=?) and goods.phone=?', [goodsId, phone]);
       if (result[1]) return resolve({ code: -1, err: result[1] });
       return resolve({ code: 0, data: result[0] });
     });
@@ -180,7 +196,7 @@ class Goods extends Utils {
    * @method 订单进入失败状态后释放相关的作品
    * @param {*} orderId 
    */
-  releaseGoodsByOrder(orderId){
+  releaseGoodsByOrder(orderId) {
     let that = this;
     return new Promise(async resolve => {
       let result = await this.getGoodsByOrder(orderId);
@@ -191,11 +207,11 @@ class Goods extends Utils {
         goodsList,
         async goodsItem => {
           let result2 = await that.changeGoodsStatusById(goodsItem.id, 'normal');
-          if(result2[1]) throw new Error(result2.message);
+          if (result2[1]) throw new Error(result2.message);
         },
         err => {
-          if(err) return resolve({code: -1, err});
-          resolve({code: 0});
+          if (err) return resolve({ code: -1, err });
+          resolve({ code: 0 });
         }
       );
     });

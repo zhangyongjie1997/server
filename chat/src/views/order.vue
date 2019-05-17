@@ -3,10 +3,15 @@
     <div class="container">
       <div class="status_container">
         <h3 class="status">当前订单状态: {{order.status | statusFormatter}}</h3>
-        <div class="status_tip">
+        <div v-if="from == 'order'" class="status_tip">
           <li>交易成功，请给卖家评价</li>
           <li>如果没有收到货，或收到货后出现问题，您可以联系卖家协商解决</li>
           <li>如果卖家没有履行应尽的承诺，您可以联系客服</li>
+        </div>
+        <div v-else class="status_tip">
+          <li>买家完成支付后请及时发货</li>
+          <li>发货后出现问题，您可以联系卖家协商解决</li>
+          <li>如果买家没有履行应尽的承诺，您可以联系客服</li>
         </div>
       </div>
       <div class="order_info_contaier">
@@ -14,7 +19,8 @@
           <li><a href="javascript:;" data-reactid=".0.8.1.$nav.$0/=1$0.0">订单信息</a></li>
         </ul>
         <div class="info_item">
-          <h3 class="info_item_title">收货信息</h3>
+          <h3 v-if="from == 'order'" class="info_item_title">收货信息</h3>
+          <h3 v-else class="info_item_title">发货信息</h3>
           <div class="info_item_container">
             <li class="info_list">
               收货人： {{address.name}}
@@ -51,7 +57,8 @@
           </div>
         </div>
         <div class="info_item">
-          <h3 class="info_item_title">商品信息</h3>
+          <h3 v-if="from == 'order'" class="info_item_title">商品信息</h3>
+          <h3 v-else class="info_item_title">我需要发货的商品</h3>
           <div class="info_item_container">
             <el-table key="mainTable"
               ref="shopTable"
@@ -74,7 +81,7 @@
                 label="数量" width="280">
               </el-table-column>
               <el-table-column label="" align="center">
-                <template slot-scope="scope">
+                <template v-if="from == 'order'" slot-scope="scope">
                   <el-button
                     size="mini"
                     @click="showM($event, scope.row)">卖家信息</el-button>
@@ -85,7 +92,7 @@
         </div>
         <div class="amount text_right">
           订单总金额：<span class="amount_num">{{order.amount}}</span> 元
-          <el-button @click="goPay($event, order.id)" v-if="order.status == 2" type="warning" size="mini">现在支付</el-button>
+          <el-button @click="goPay($event, order.id)" v-if="order.status == 2 && from == 'order'" type="warning" size="mini">现在支付</el-button>
         </div>
       </div>
     </div>
@@ -114,7 +121,7 @@
   </div>
 </template>
 <script>
-import { getOrderDetail, getGoodsClass, orderPay } from "../api/api.js";
+import { getOrderDetail, getGoodsClass, orderPay, getSelledOrder } from "../api/api.js";
 export default {
   data() {
     return {
@@ -123,15 +130,32 @@ export default {
       address: {},
       goodsClass: [],
       delDialogVisible: false,
-      seller: {}
+      seller: {},
+      from: 'order'
     };
   },
   created() {
-    this.orderId = this.$route.query.id;
+    this.from = this.$route.query.from || 'order';
     this.getGoodsClass();
-    this.getOrder();
+    if(this.$route.query.from == 'goods'){
+      this.getOrderByGoods(this.$route.query.goods);
+    }else{
+      this.orderId = this.$route.query.id;
+      this.getOrder();
+    }
   },
   methods: {
+    getOrderByGoods(goodsId){
+      let that = this;
+      getSelledOrder({
+        goodsId,
+        userPhone: this.$store.state.user.phone
+      }).then(res => {
+        if(res.code != 0) return that.$message.error(res.msg);
+        that.order = res.data;
+        that.address = typeof that.order.address == 'string' ? JSON.parse(that.order.address) : that.order.address;
+      });
+    },
     goPay(e, orderId){
       let that = this;
       orderPay({orderId, userPhone: this.$store.state.user.phone})

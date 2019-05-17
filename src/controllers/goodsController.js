@@ -180,7 +180,7 @@ class GoodsController extends Utils {
     let list = this.sortList(goodsList.data);
     list = list.slice(pageSize * currentPage, pageSize * (currentPage + 1));
     list = await this.collectNum(list, userPhone);
-    
+
     res.send({
       code: 0,
       msg: "获取成功",
@@ -236,6 +236,22 @@ class GoodsController extends Utils {
     let result = await goods.getGoodsById(req.body.id);
     if (result.code != 0) return this.sendError(res, result.err);
     res.send({ code: 0, data: result.data[0], msg: "获取成功" });
+  }
+
+  async getSelled(req, res){
+    let result = await goods.getOrderByGoods(req.body.goodsId);
+    if (result.code != 0) return this.sendError(res, result.err);
+
+    let result2 = await goods.getSelledGoods(req.body.goodsId, req.body.userPhone);
+    if (result2.code != 0) return this.sendError(res, result2.err);
+
+    let order = result.data[0];
+    order.goods = result2.data.map(item => {
+      item.shopCount = 1;
+      return item;
+    });
+
+    res.send({ code: 0, data: order, msg: "获取成功" });
   }
 
 }
