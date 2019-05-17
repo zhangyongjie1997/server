@@ -59,7 +59,7 @@
               style="width: 100%">
               <el-table-column label="" width="100">
                 <template slot-scope="scope">
-                  <img :src="baseUrl + scope.row.cover" width="30px">
+                  <router-link class="pointer" tag="img" :to="'/detail?id=' + scope.row.id" :src="baseUrl + scope.row.cover" width="30px"/>
                 </template>
               </el-table-column>
               <el-table-column prop="name" label="商品名">
@@ -85,6 +85,7 @@
         </div>
         <div class="amount text_right">
           订单总金额：<span class="amount_num">{{order.amount}}</span> 元
+          <el-button @click="goPay($event, order.id)" v-if="order.status == 2" type="warning" size="mini">现在支付</el-button>
         </div>
       </div>
     </div>
@@ -94,10 +95,10 @@
       width="30%">
       <div class="text_left seller_info">
         <li>
-          卖家头像：<img class="avatar" :src="baseUrl + seller.avatar" alt="">
+          卖家头像：<router-link tag="img" :to="'/space?user=' + seller.phone" class="avatar" :src="baseUrl + seller.avatar" alt=""/>
         </li>
         <li>
-          卖家昵称：<span>{{seller.nick_name}}</span>
+          卖家昵称：<router-link tag="span" :to="'/space?user=' + seller.phone" class="color_primary">{{seller.nick_name}}</router-link>
         </li>
         <li>
           卖家手机号：<span>{{seller.phone}}</span>
@@ -113,7 +114,7 @@
   </div>
 </template>
 <script>
-import { getOrderDetail, getGoodsClass } from "../api/api.js";
+import { getOrderDetail, getGoodsClass, orderPay } from "../api/api.js";
 export default {
   data() {
     return {
@@ -131,6 +132,14 @@ export default {
     this.getOrder();
   },
   methods: {
+    goPay(e, orderId){
+      let that = this;
+      orderPay({orderId, userPhone: this.$store.state.user.phone})
+        .then(res => {
+          if(res.code != 0) return that.$message.error(res.msg);
+          window.open(res.data.url);
+        });
+    },
     showM(e, data){
       this.seller = data;
       this.delDialogVisible = true;

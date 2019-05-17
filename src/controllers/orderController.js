@@ -116,6 +116,7 @@ class OrderController extends Utils {
         async idItem => {
           let goodsItem = await goods.getGoodsById(idItem.id);
           if (goodsItem.code == -1) throw new Error(goodsItem.err.message);
+          if(!goodsItem.data) return;
           goodsItem.data[0].shopCount = idItem.count;
           goodsList.push(goodsItem.data[0]);
         },

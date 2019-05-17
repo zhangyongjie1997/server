@@ -48,6 +48,14 @@ export default new Router({
       }
     },
     {
+      path: "/space",
+      name: "space",
+      component: () => import('./views/space.vue'),
+      meta:{
+        title:'个人空间',
+      }
+    },
+    {
       path: "/order",
       name: "order",
       component: () => import('./views/order.vue'),

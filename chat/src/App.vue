@@ -150,6 +150,9 @@ input:-webkit-autofill {
   position: absolute !important;
   left: 0 !important;
 }
+.color_primary{
+  color: #409EFF;
+}
 .color_success{
   color: #67C23A;
 }

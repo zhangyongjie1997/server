@@ -179,7 +179,7 @@
               <el-button
                 v-show="scope.row.status == 2"
                 size="mini"
-                @click="goPay($event ,scope.row.id)">去支付</el-button>
+                @click="goPay($event, scope.row.id)">去支付</el-button>
               <el-button
                 v-show="scope.row.status == 2"
                 size="mini"
@@ -529,7 +529,7 @@ export default {
     },
     getShop(){
       let that = this;
-      getShop({userPhone: this.$store.getters.get('user[phone]')})
+      getShop({userPhone: this.$store.state.user.phone})
         .then(res => {
           if(res.code != 0) return that.$message.error(res.msg);
           that.shopList = res.data;
@@ -539,7 +539,7 @@ export default {
     getCollect(){
       let that = this;
       getCollect({
-        userPhone: this.$store.getters.get('user[phone]'),
+        userPhone: this.$store.state.user.phone,
         pageSize: that.collectPageSize,
         currentPage: that.currentCollectPage,
       }).then(res => {
@@ -554,7 +554,7 @@ export default {
     getPersonalGoods(){
       let that = this;
       getPersonalGoods({
-        phone: this.$store.getters.get('user[phone]'),
+        phone: this.$store.state.user.phone,
         pageSize: that.goodsPageSize,
         currentPage: that.currentGoodsPage,
       }).then(res => {

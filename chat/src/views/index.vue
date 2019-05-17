@@ -114,7 +114,6 @@ export default {
   margin: 0 0 25px 25px;
   float: left;
   border: 1px solid #eee;
-  
 }
 .item_img{
   overflow: hidden;

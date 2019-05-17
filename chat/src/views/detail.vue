@@ -1,14 +1,15 @@
 <template>
   <div class="main">
     <go-top></go-top>
+    <goShop></goShop>
     <el-row style="font-size:0;">
       <img src="../assets/benner.jpg" width="100%">
     </el-row>
     <div class="userInfo_container">
-      <div class="userInfo">
+      <router-link tag="div" :to="'/space?user=' + goodsUser.phone" class="userInfo pointer">
         <img :src="baseUrl + goodsUser.avatar" class="avatar" width="70px" height="70px">
         <span class="nick_name">{{goodsUser.nick_name}}</span>
-      </div>
+      </router-link>
       <el-button class="fr" @click="$router.go(-1)">返回</el-button>
     </div>
     <div class="content_container">
@@ -70,7 +71,9 @@
         <div v-for="(item, index) in commentList" :key="item.id" class="comment_item_container">
           <el-row :gutter="20" class="comment_item_title">
             <el-col :span="1">
-              <img class="comment_avatar pointer" :src="baseUrl + item.avatar">
+              <router-link :to="'/space?user=' + item.phone">
+                <img class="comment_avatar pointer" :src="baseUrl + item.avatar">
+              </router-link>
             </el-col>
             <el-col :offset="0" :span="3" class="comment_item_name pointer">{{item.nick_name}}</el-col>
             <el-col class="comment_item_time text_right" :offset="14" :span="6">{{item.id | dateFormatter}}</el-col>
@@ -92,12 +95,18 @@
               <div v-for="(item2, index2) in item.childComment" :key="index2" class="subcomment_item_container">
                 <el-row>
                   <el-col :span="1">
-                    <img class="subcomment_avatar pointer" :src="baseUrl + item2.avatar">
+                    <router-link :to="'/space?user=' + item2.phone">
+                      <img class="subcomment_avatar pointer" :src="baseUrl + item2.avatar">
+                    </router-link>
                   </el-col>
                   <el-col :span="6">
-                    <span class="pointer comment_item_name">{{item2.nick_name}}</span>
+                    <router-link :to="'/space?user=' + item2.phone">
+                      <span class="pointer comment_item_name">{{item2.nick_name}}</span>
+                    </router-link>
                     <span style="margin: 0 5px;color: #027fff;">回复</span>
-                    <span class="pointer comment_item_name">{{item2.parent ? item2.parent.nick_name : item.nick_name}}</span>
+                    <router-link :to="'/space?user=' + item2.parent ? item2.parent.phone : item.phone">
+                      <span class="pointer comment_item_name">{{item2.parent ? item2.parent.nick_name : item.nick_name}}</span>
+                    </router-link>
                   </el-col>
                   <el-col :offset="11" :span="6" class="comment_item_time text_right">{{item2.id | dateFormatter}}</el-col>
                 </el-row>
@@ -126,6 +135,7 @@
 </template>
 <script>
 import * as $ from "jquery";
+import goShop from '../components/goShop.vue';
 import goTop from "../components/goTop.vue";
 import {
   getComment0,
@@ -310,7 +320,6 @@ export default {
           that.judgeCollect();
           that.shopHadGoods();
         }
-        console.log(that.goods);
         getUserByPhone({ phoneNum: that.goods.phone }).then(res => {
           if (res.code != 0) return that.$message.error(res.msg);
           that.goodsUser = res.data;
@@ -341,7 +350,7 @@ export default {
     window.removeEventListener("visibilitychange", this.visibilitychange);
     next();
   },
-  components: { goTop },
+  components: { goTop, goShop },
   computed: {
     mineGoods() {
       return this.$store.state.user.phone == this.goods.phone;

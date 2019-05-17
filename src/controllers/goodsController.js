@@ -24,11 +24,9 @@ class GoodsController extends Utils {
     let that = this;
     let {sort, userPhone = 0} = req.query;
     let list = await goods.getIndexList();
-    let collectList = await user.findCollect(userPhone);
-    let collectListAll = await user.getCollectCount();
     if (list.code == 0) {
       let data = list.data;
-      data = that.collectNum(data, collectListAll.data, collectList.data,userPhone);
+      data = await that.collectNum(data, userPhone);
       this.sortList(data, sort);
       setTimeout(() => {
         res.send({ code: 0, msg: "获取成功", data: data.slice(0, 8) }).end();
@@ -38,13 +36,16 @@ class GoodsController extends Utils {
     }
   }
 
-  collectNum(dataList, collectList = [], userCollect = []) {
+  async collectNum(dataList, userPhone = '000') {
+    let userCollect = await user.findCollect(userPhone);
+    let collectList = await user.getCollectCount();
+
     dataList = dataList.map(item => {
       item.collectCount = 0;
-      item.collected = userCollect.some(item2 => {
+      item.collected = userCollect.data.some(item2 => {
         return item2.id == item.id;
       });
-      collectList.forEach(item3 => {
+      collectList.data.forEach(item3 => {
         if (item3.id == item.id) {
           item.collectCount = item3.count;
         }
@@ -139,7 +140,7 @@ class GoodsController extends Utils {
     let collectList = await goods.getCollection(req.body.userPhone);
     if (collectList.code != 0) return this.sendError(res, collectList.err);
     let currentPage = req.body.currentPage || 0,
-      pageSize = req.body.pageSize || 0;
+      pageSize = req.body.pageSize || 10;
     let list = collectList.data.slice(pageSize * currentPage, pageSize * (currentPage + 1));
     res
       .send({
@@ -158,32 +159,27 @@ class GoodsController extends Utils {
     if (result.code != 0) return this.sendError(res, classList.err);
     let classList = result.data;
     let collectListAll = await user.getCollectCount();
-    classList = that.collectNum(classList, collectListAll.data);
+    classList = await that.collectNum(classList, req.query.userPhone);
     this.sortList(classList, req.query.sort);
     res.send({ code: 0, msg: "获取成功", data: classList || [] }).end();
   }
   async getGoodsListByPhone(req, res, next) {
-    let that = this;
-    let goodsList = await goods.getGoodsListByPhone(req.body.userPhone);
+    let that = this, userPhone = req.body.userPhone;
+    let goodsList = await goods.getGoodsListByPhone(req.body.phone);
     if (goodsList.code != 0) return this.sendError(res, goodsList.err);
     let currentPage = req.body.currentPage || 0,
-      pageSize = req.body.pageSize || 0;
-    let list = goodsList.data
-      .sort((a, b) => {
-        if (this.getTimestamp(a.time) > this.getTimestamp(b.time)) return -1;
-        return 1;
-      })
-      .slice(pageSize * currentPage, pageSize * (currentPage + 1));
-    res
-      .send({
+      pageSize = req.body.pageSize || 10;
+    let list = this.sortList(goodsList.data)
+    list = list.slice(pageSize * currentPage, pageSize * (currentPage + 1));
+    list = await this.collectNum(list, userPhone);
+    res.send({
         code: 0,
         msg: "获取成功",
         data: {
           data: list,
           count: goodsList.data.length
         }
-      })
-      .end();
+      }).end();
   }
   payGoods(req, res) {
     let goodsInfo = [];
