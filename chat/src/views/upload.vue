@@ -45,6 +45,7 @@
               <el-upload
                 class="upload-demo"
                 ref="upload1"
+                :on-change="onSelectCover"
                 :action='baseUrl + "goods/upload"'
                 list-type="picture"
                 :file-list="fileList"
@@ -64,6 +65,7 @@
               <el-upload
                 class="upload-demo"
                 ref="upload2"
+                :on-change="onSelectImg"
                 :action='baseUrl + "goods/upload"'
                 list-type="picture"
                 :file-list="fileList"
@@ -100,7 +102,7 @@ export default {
         token: utils.getLocalStorage('token'),
         phone: utils.getLocalStorage('phone')
       },
-      step: 0,
+      step: 2,
       goodsClass:[],
       classId: Number,
       goods: {},
@@ -117,12 +119,37 @@ export default {
     };
   },
   created(){
-    this.getGoodsClass()
+    this.getGoodsClass();
   },
   methods:{
+    onSelectImg(file){
+      const isJPG = file.raw.type === 'image/jpeg' || file.raw.type === 'image/png';
+      const isLt2M = file.raw.size / 1024 / 1024 < 2;
+
+      if (!isJPG) {
+        this.$message.error('选择的文件不是正确的图片格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!');
+      }
+      (!isJPG || !isLt2M) && this.$refs.upload2.clearFiles();
+    },
+    onSelectCover(file){
+      const isJPG = file.raw.type === 'image/jpeg' || file.raw.type === 'image/png';
+      const isLt2M = file.raw.size / 1024 / 1024 < 2;
+
+      if (!isJPG) {
+        this.$message.error('选择的文件不是正确的图片格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!');
+      }
+      (!isJPG || !isLt2M) && this.$refs.upload1.clearFiles();
+    },
     uploadSuccessHref(){
       this.$router.push({path: '/personal', query: {tab: 'goods'}});
     },
+
     submitUpload(){
       let that = this;
       let fileData = new FormData();
