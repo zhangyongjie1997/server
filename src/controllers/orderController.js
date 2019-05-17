@@ -2,7 +2,7 @@ const Utils = require("../lib/utils");
 const Alipay = require("../pay/alipay");
 const path = require("path");
 const user = require("../models/user");
-const { orderStatus } = require("../lib/config");
+const { orderStatus, orderTimeout } = require("../lib/config");
 const goods = require("../models/goods");
 const order = require("../models/order");
 const async = require("async");
@@ -23,7 +23,7 @@ class OrderController extends Utils {
   async verifyCallback(req, res, next) {
     //let result = ali.signVerify(req.body.sign);
     if (req.body.trade_status == "TRADE_SUCCESS") {
-      let result = await order.orderStatusChange(orderStatus.close, req.body.out_trade_no);
+      let result = await order.orderStatusChange(req.body.out_trade_no, orderStatus.close);
 
       console.log(result);
     }
@@ -143,12 +143,13 @@ class OrderController extends Utils {
       }
 
       async function changeStatus(callback){
-        await order.orderStatusChange(orderStatus.fail, orderObj.id);
+        await order.orderStatusChange(orderObj.id, orderStatus.fail);
         // await ali.close({
         //   outTradeId: req.body.out_trade_no,
         //   trade_no: req.body.trade_no,
         //   operator_id: "001"
         // });
+        console.log('订单自动取消');
         callback(null);
       }
 
@@ -156,7 +157,7 @@ class OrderController extends Utils {
         await goods.releaseGoodsByOrder(orderObj.id);
         callback(null);
       }
-    }, 1000 * 60 * 15);  //设置订单的超时时间为15分钟
+    }, orderTimeout);  //设置订单的超时时间为15分钟
   }
   
   async getOrderStatus(req, res) {

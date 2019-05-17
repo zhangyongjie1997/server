@@ -1,3 +1,5 @@
+let orderTimeout = 1000 * 60 * 15;
+
 module.exports = {
   secret: 'chat',
   // dbConfig: {
@@ -41,5 +43,6 @@ module.exports = {
   shopStatus: {
     normal: 0,
     booked: 1
-  }
+  },
+  orderTimeout
 }

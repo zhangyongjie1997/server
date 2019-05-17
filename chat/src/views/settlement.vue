@@ -232,7 +232,7 @@ export default {
     },
     getShop() {
       let that = this;
-      getShop({ userPhone: this.$store.getters.get("user[phohe]") }).then(
+      getShop({ userPhone: this.$store.state.user.phone }).then(
         res => {
           if (res.code != 0) return that.$message(res.msg);
           that.shopList = res.data;
