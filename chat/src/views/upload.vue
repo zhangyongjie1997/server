@@ -24,12 +24,15 @@
             <el-input v-model="goods.name"></el-input>
           </el-form-item>
           <el-form-item label="价格" prop="price">
-            <el-input v-model="goods.price"></el-input>
+            <el-input v-model="goods.price">
+              <template slot="append">￥</template>
+            </el-input>
           </el-form-item>
           <el-form-item label="描述" prop="describe">
             <el-input type="textarea" v-model="goods.describe"></el-input>
           </el-form-item>
           <el-form-item>
+            <el-button @click="step--">上一步</el-button>
             <el-button @click="formConfirm">确认</el-button>
           </el-form-item>
         </el-form>
@@ -77,6 +80,7 @@
             </el-col>
           </el-row>
           <el-row class="item">
+            <el-button @click="step--">上一步</el-button>
             <el-button @click="submitUpload" plain type="primary"> 上 传   </el-button>
           </el-row>
         </el-row>
@@ -85,6 +89,9 @@
         <el-row class="upload_row">
           <span class="upload_success"><i class="el-icon-success color_success"></i>上传成功</span>
           <span class="upload_success_a pointer" @click="uploadSuccessHref">点击查看</span>
+        </el-row>
+        <el-row class="upload_row">
+          <el-button @click="step=0">继续上传</el-button>
         </el-row>
       </div>
     </div>

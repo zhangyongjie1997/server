@@ -2,19 +2,12 @@ const Utils = require("../lib/utils");
 const Alipay = require("../pay/alipay");
 const path = require("path");
 const user = require("../models/user");
-const { orderStatus, orderTimeout } = require("../lib/config");
+const { orderStatus, orderTimeout, payConfig } = require("../lib/config");
 const goods = require("../models/goods");
 const order = require("../models/order");
 const async = require("async");
 
-const ali = new Alipay({
-  appId: "2016092600599391",
-  notifyUrl: "http://zyjbiubiu.cn/api/pay/callback",
-  rsaPrivate: path.resolve(__dirname, "../../https/pay_private.pem"),
-  rsaPublic: path.resolve(__dirname, "../../https/pay_public.pem"),
-  sandbox: true,
-  signType: "RSA2"
-});
+const ali = new Alipay(payConfig);
 
 class OrderController extends Utils {
   constructor() {

@@ -37,6 +37,9 @@
         </div>
       </router-link>
     </el-row>
+    <!-- <el-row class="foot">
+      <a href="http://www.miitbeian.gov.cn/">津ICP备19002100号</a>
+    </el-row> -->
   </div>
 </template>
 <script>
@@ -91,6 +94,13 @@ export default {
 };
 </script>
 <style scoped>
+.foot{
+  height: 40px;
+}
+.foot a{
+  font-size: 13px;
+  color: #999;
+}
 .hot{
   box-sizing: border-box;
   cursor: pointer;

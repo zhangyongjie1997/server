@@ -1,4 +1,6 @@
-let orderTimeout = 1000 * 60 * 15;
+const path = require('path')
+
+const orderTimeout = 1000 * 60 * 15;
 
 module.exports = {
   secret: 'chat',
@@ -44,5 +46,13 @@ module.exports = {
     normal: 0,
     booked: 1
   },
-  orderTimeout
+  orderTimeout,
+  payConfig: {
+    appId: "2016092600599391",
+    notifyUrl: "http://zyjbiubiu.cn/api/pay/callback",
+    rsaPrivate: path.resolve(__dirname, "../../https/pay_private.pem"),
+    rsaPublic: path.resolve(__dirname, "../../https/pay_public.pem"),
+    sandbox: true,
+    signType: "RSA2"
+  }
 }

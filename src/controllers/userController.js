@@ -91,7 +91,7 @@ class UserController extends Utils {
     let path;
     if (result.code == 0) {
       path = result.path.replace("uploads/", "static/");
-      if(path.indexOf('\\') != -1){
+      if (path.indexOf('\\') != -1) {
         path = 'static/' + req.body.phone + '/' + result.file_name;
       }
       res.send({

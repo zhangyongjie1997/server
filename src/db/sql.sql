@@ -22,6 +22,6 @@ insert into comment_path (ancestor, descendant, depth)
 select cp.ancestor, 10, cp.depth+1 from comment_path as cp 
 where cp.descendant=6 union all select 10, 10, 0;
 
-select * from goods join user on (user.phone=goods.phone) where order2 in (select order2 from goods where id=6) and phone=18522787303
+select * from goods join user on (user.phone=goods.phone) where goods.order2 in (select order2 from goods where id=6) and goods.phone=18522787303
 
 select * from order2 where id in (select order2 from goods where id=6)

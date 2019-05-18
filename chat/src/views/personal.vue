@@ -46,7 +46,7 @@
             <p v-if="goodsList.length == 0" style="font-size:26px;color:#ccc;">您还没有发布过商品 . . .</p>
             <el-row v-line_mid class="collect-item pointer" v-for="(item, index) in goodsList" :key="index">
               <el-col :span="2">
-                <router-link :to="'/detail?id=' + item.id" tag="img" class="goods_cover pointer" :src="baseUrl + item.cover" width="30px"/>
+                <router-link :to="'/detail?id=' + item.id" tag="img" class="goods_cover pointer" :src="baseUrl + item.cover" width="40px" height="30px"/>
               </el-col>
               <el-col v-if="goodsList.length > 0" :span="6">
                 <router-link class="collect-link" tag="a" :to="'/detail?id=' + item.id">{{item.name}}</router-link>
