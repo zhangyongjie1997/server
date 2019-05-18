@@ -37,7 +37,7 @@
           <el-button @click="showEdit($event, 'pwd')" size="medium">修改密码</el-button>
         </el-row>
       </el-tab-pane>
-      <el-tab-pane name="goods" label="我的商品">
+      <el-tab-pane name="goods" label="我的作品">
         <div class="pane_goods">
           <el-row class="text_left">
             <el-button plain type='primary' @click="$router.push('/upload')">添加作品</el-button>
@@ -47,7 +47,7 @@
             <el-row v-line_mid class="collect-item pointer" v-for="(item, index) in goodsList" :key="index">
               <el-col :span="2">
                 <router-link :to="'/detail?id=' + item.id" tag="img" class="goods_cover pointer" :src="baseUrl + item.cover" width="40px" height="30px"/>
-              </el-col>
+              </el-col>  
               <el-col v-if="goodsList.length > 0" :span="6">
                 <router-link class="collect-link" tag="a" :to="'/detail?id=' + item.id">{{item.name}}</router-link>
               </el-col>

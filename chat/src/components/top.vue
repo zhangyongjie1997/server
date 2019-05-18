@@ -23,7 +23,7 @@
                 <span @click="changeTab('info')">个人信息</span>
               </el-dropdown-item>
               <el-dropdown-item>
-                <span @click="changeTab('goods')">我的商品</span>
+                <span @click="changeTab('goods')">我的作品</span>
               </el-dropdown-item>
               <el-dropdown-item>
                 <span @click="changeTab('collect')">我的收藏</span>
